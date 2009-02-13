@@ -44,8 +44,10 @@ function refresh() {
 			return;
 		}
 	}
-	query($('q').value, new Date(start), new Date(end), $('showText').checked);
+	var q = $('q').value;
+	query(q, new Date(start), new Date(end), $('showText').checked);
 
+	$('title').innerHTML = q;
 	$('embed-code').value = serialize();
 }
 
@@ -88,9 +90,9 @@ function serialize() {
 		a.push('&date_dynamic=0');
 		a.push('&start=');
 		a.push(encodeURIComponent($('dateStart').value));
+		a.push('&end=');
+		a.push(encodeURIComponent($('dateEnd').value));
 	}
-	a.push('&end=');
-	a.push(encodeURIComponent($('dateEnd').value));
 	if ($('show_text')) {
 		a.push('&show_text=1');
 	}
@@ -385,7 +387,7 @@ input.btn {
 </style>
 </head>
 <body onload="init()">
-	<h3>Twitter Graph</h3>
+	<h3>Twitter Graph For: <span id="title"/></h3>
 	
 	<div id="main">
 		<strong>Track how often twitter users are talking about you</strong>
