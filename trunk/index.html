@@ -394,6 +394,9 @@ input.btn {
 	width: 100%;
 }
 
+div.input-div {
+	padding: 3pt;
+}
 </style>
 </head>
 <body onload="init()">
@@ -402,23 +405,26 @@ input.btn {
 	<div id="main">
 		<strong>Track how often twitter users are talking about you</strong>
 		<form onSubmit="refresh(); return false" id="form">
-			<div>
-				Search: <input id="q" value="{{ q }}"/>
+			<div class="input-div">
+				Search: <input id="q" value="{{q}}"/>
 			</div>
-			<div>
+			<div class="input-div">
 				<input type="radio" name="dateDynamic" value="0" id="dateDynamic0" {% if not date_dynamic %} checked="checked" {% endif %}/>
 				<label for="dateDynamic0">From:</label>
 				<input id="dateStart" value="{{start}}"/>  Until: <input id="dateEnd" value="{{end}}"/>
 			</div>
-			<div>
+			<div class="input-div">
+				Or
+			</div>
+			<div class="input-div">
 				<input type="radio" name="dateDynamic" value="1" id="dateDynamic1"  {% if date_dynamic %} checked="checked" {% endif %}/>
 				<label for="dateDynamic1">During the past</label>
 				<input id="duration" value="{{duration}}" size="3"/> days.
 			</div>
-			<div>
+			<div class="input-div">
 				<input id="showText"  type="checkbox" {% if show_text %} checked="checked" {%endif%}/><label for="showText">Show Texts</label/>
 			</div>
-			<div>
+			<div class="input-div">
 				<input type="submit" class="btn" value="Show it!"/>
 			</div>
 		</form>
