@@ -57,7 +57,7 @@ function query(q, start, end, showText) {
 }
 
 function init() {
-	console.log('start');
+	log('start');
 	var today = new Date();
 	var yday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
 	if (!$('dateEnd').value) {
@@ -115,6 +115,16 @@ function compareDates(a, b) {
 	return Date.parse(a.date) > Date.parse(b.date) ? 1 : -1;
 }
 
+function log(msg) {
+	if (window.console && window.console.log) {
+		window.console.log(msg);
+	}
+}
+function error(msg) {
+	if (window.console && window.console.error) {
+		window.console.error(msg);
+	}
+}
 //////////////////////////////////////////////////
 var HAPPY = ' :)';
 var SAD = ' :(';
@@ -139,7 +149,7 @@ SearchMaster.prototype.run = function () {
 }
 
 SearchMaster.prototype.onSearchDone = function (searcher) {
-	console.log("Searcher done " + searcher);
+	log("Searcher done " + searcher);
 	this.doneCount++;
 	if (this.doneCount == this.searchers.length) {
 		// All searches are ready
@@ -167,7 +177,7 @@ SearchMaster.prototype.getAggregateResults = function() {
 		arr.push(dateCell);
 	}
 	arr.sort(compareDates);
-	console.log(arr);
+	log(arr);
 	return arr;
 }
 
@@ -249,7 +259,7 @@ Searcher.prototype.run = function (onDone) {
 	var query = this.q + " since:" + this.buildDate(this.start) + " until:" + this.buildDate(this.end);
 	searchUrl += "?q=" + encodeURIComponent(query);
 	searchUrl += '&rpp=100';
-	console.log("Search URL: " + searchUrl);
+	log("Search URL: " + searchUrl);
 	jsonp(searchUrl, 'globalSearchers[' + this.id + '].onSearchResult');
 }
 
@@ -268,13 +278,13 @@ Searcher.prototype.pad = function(n) {
 Searcher.prototype.onSearchResult = function(o) {
 	if (o.max_id == -1) {
 		// That's an error. No mas para hoy
-		console.error("There were errors in the search");
+		error("There were errors in the search");
 	}
 	this.results = this.results.concat(o.results);
 	if (ACCUMULATE && o.next_page) {
 		var searchUrl = SEARCH_URL;
 		searchUrl += o.next_page;
-		console.log("Recursive Search: " + searchUrl);
+		log("Recursive Search: " + searchUrl);
 		jsonp(searchUrl, 'globalSearchers[' + this.id + '].onSearchResult');
 		
 	} else {
