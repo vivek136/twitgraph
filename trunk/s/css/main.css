@@ -1,0 +1,16 @@
+body {
+	font-family: Arial;
+}
+
+input.btn {
+	color:#050;
+	font: bold 84% 'trebuchet ms',helvetica,sans-serif;
+	background-color:#fed;
+	border:1px solid;
+	border-color: #696 #363 #363 #696;
+	width: 100%;
+}
+
+div.input-div {
+	padding: 3pt;
+}
