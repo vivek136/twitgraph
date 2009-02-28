@@ -331,10 +331,8 @@ Searcher.prototype.toString = function () {
 }
 
 </script>
+<link href="s/css/main.css" rel="stylesheet" />
 <style>
-body {
-	font-family: Arial;
-}
 #graph {
 	width: 600px;
 	height: 300px;
@@ -385,18 +383,6 @@ body {
 	width: 300px;
 	height: 60px;
 }
-input.btn {
-	color:#050;
-	font: bold 84% 'trebuchet ms',helvetica,sans-serif;
-	background-color:#fed;
-	border:1px solid;
-	border-color: #696 #363 #363 #696;
-	width: 100%;
-}
-
-div.input-div {
-	padding: 3pt;
-}
 </style>
 </head>
 <body onload="init()">
@@ -437,14 +423,18 @@ div.input-div {
 	</div>
 	<div style="clear:both"/>
 	<div id="graph"></div>
-
-	<img style="border-width: 0px; vertical-align: middle; margin-right: 50px;"
-		 src="http://search.twitter.com/images/powered-by-twitter-badge.gif" 
-		alt="Powered-by-twitter-badge"/>
-	<a href="http://twitter.com/home?status=@rantav">Tweet me @rantav</a> or <a href="http://twitter.com/rantav">follow me</a>
+	
+	<div>
+		<img style="border-width: 0px; vertical-align: middle; margin-right: 50px;"
+			 src="http://search.twitter.com/images/powered-by-twitter-badge.gif" 
+			alt="Powered-by-twitter-badge"/>
+		<a href="http://twitter.com/home?status=@rantav">Tweet me @rantav</a> or <a href="http://twitter.com/rantav">follow me</a>
+	</div>
+	<div style="margin-top:10pt">
+		<a href="/about">About TwitGraph</a>
+	</div>
 	<div id="resultsText"></div>
 
-</body>
 <script type="text/javascript">
 var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
 document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
@@ -454,4 +444,5 @@ try {
 var pageTracker = _gat._getTracker("UA-7467594-1");
 pageTracker._trackPageview();
 } catch(err) {}</script>
+</body>
 </html>
