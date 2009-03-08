@@ -1,0 +1,25 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>{% block title %}TwitGraph{% endblock %}</title>
+<link href="s/css/main.css" rel="stylesheet" />
+{% block page_css %}{% endblock %}
+{% block page_js %}{% endblock %}
+</head>
+<body onload="{% block js_init_function %}{% endblock%}">
+{% block content %}{% endblock %}
+
+{% block analytics %}
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-7467594-1");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+{% endblock analytics %}
+</body>
+</html>

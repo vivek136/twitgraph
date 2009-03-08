@@ -8,8 +8,14 @@ handlers:
   static_dir: s/
 
 - url: /about
-  static_files: s/html/about.html
-  upload: s/html/about.html
+  script: about.py
+
+- url: /embed
+  script: embed.py
+
+#- url: /about
+#  static_files: s/html/about.html
+#  upload: s/html/about.html
 
 - url: /.*
-  script: main.py
+  script: index.py

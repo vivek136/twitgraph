@@ -11,6 +11,10 @@ from google.appengine.ext.webapp import template
 class MainHandler(webapp.RequestHandler):
 
 	def get(self):
+		path = os.path.join(os.path.dirname(__file__), 'index.html')
+		self.response.out.write(template.render(path, self.get_template_values()))
+	
+	def get_template_values(self):
 		r = self.request
 
 		q = r.get('q')
@@ -27,17 +31,16 @@ class MainHandler(webapp.RequestHandler):
 			duration = 7
 
 		template_values = {
-			'show_inputs': r.get('show_inputs') == '1',
 			'q': q,
 			'date_dynamic': date_dynamic,
 			'show_text': r.get('show_text') == '1',
-			'duration': duration,
+			'duration': duration or 0,
 			'start': r.get('start'),
 			'end': r.get('end'),
 
 		}
-		path = os.path.join(os.path.dirname(__file__), 'index.html')
-		self.response.out.write(template.render(path, template_values))
+		return template_values
+
 
 
 def main():
