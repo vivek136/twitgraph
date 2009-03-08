@@ -1,15 +1,13 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<meta http-equiv="content-type" content="text/html; charset=UTF-8">
-<title>About TwitGraph</title>
-<link href="s/css/main.css" rel="stylesheet" />
+{% extends "base.html" %}
+
+{% block page_css %}
 <style>
 #disclaimer {
 	font-size: 10pt;
 }
 </style>
-</head>
+{% endblock page_css %}
+{% block content %}
 <body>
 <h2>About TwitGraph</h2>
 <p><strong>TwitGraph</strong> is an experimental ("early beta") application I wrote over two sleepless nights to follow trends of the product I work on in my day job.</p>
@@ -33,15 +31,4 @@
 </div>
 
 <p id="disclaimer"><strong>Disclaimer:</strong> TwitGraph is my own personal project and I work on it on my free time. It is neither encouraged nor discouraged by my <a href="http://www.google.com/">employee</a>. (actually, they don't know about it). No level of support is granted whatsoever, but a big smile is!</p>
-<script type="text/javascript">
-var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-</script>
-<script type="text/javascript">
-try {
-var pageTracker = _gat._getTracker("UA-7467594-1");
-pageTracker._trackPageview();
-} catch(err) {}</script>
-</body>
-</html>
-
+{% endblock content %}
