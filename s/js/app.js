@@ -91,7 +91,11 @@ function $(el) {
 
 function serialize() {
   var a = [];
-  var urlBase = document.location.href.substr(0, document.location.href.indexOf("?"));
+  var hostEnd = document.location.href.indexOf("?");
+  if (hostEnd < 0) {
+    hostEnd = document.location.href.length;
+  }
+  var urlBase = document.location.href.substr(0, hostEnd);
   a.push('<h3>TwitGraph for ');
   a.push(query_state.q);
   a.push('</h3>\n');
