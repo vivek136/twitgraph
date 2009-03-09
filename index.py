@@ -21,10 +21,10 @@ class MainHandler(webapp.RequestHandler):
 		if not q:
 			q = 'youtube annotations'
 
-		if r.get('date_dynamic') == '0':
-			date_dynamic = False
+		if r.get('dynamic_date') == '0':
+			dynamic_date = False
 		else:
-			date_dynamic = True
+			dynamic_date = True
 
 		duration = r.get('duration')
 		if not duration:
@@ -32,7 +32,7 @@ class MainHandler(webapp.RequestHandler):
 
 		template_values = {
 			'q': q,
-			'date_dynamic': date_dynamic,
+			'dynamic_date': dynamic_date,
 			'show_text': r.get('show_text') == '1',
 			'duration': duration or 0,
 			'start': r.get('start'),
