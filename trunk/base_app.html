@@ -33,7 +33,7 @@ padding: 4px;
 <script type="text/javascript">
 {% block js_state_variables %}
 var query_state = new QueryState('{{q|escape}}',
-				{% if date_dynamic %}true{% else %}false{% endif%},
+				{% if dynamic_date %}true{% else %}false{% endif%},
 				Date.parse('{{start|escape}}'),
 				Date.parse('{{end|escape}}'),
 				{{duration|escape}},
@@ -54,7 +54,7 @@ var query_state = new QueryState('{{q|escape}}',
 			Search: <input id="q" value="{{q}}"/>
 		</div>
 		<div class="input-div">
-			<input type="radio" name="dateDynamic" value="0" id="dateDynamic0" {% if not date_dynamic %} checked="checked" {% endif %}/>
+			<input type="radio" name="dateDynamic" value="0" id="dateDynamic0" {% if not dynamic_date %} checked="checked" {% endif %}/>
 			<label for="dateDynamic0">From:</label>
 			<input id="dateStart" value="{{start}}"/>  Until: <input id="dateEnd" value="{{end}}"/>
 		</div>
@@ -62,7 +62,7 @@ var query_state = new QueryState('{{q|escape}}',
 			Or
 		</div>
 		<div class="input-div">
-			<input type="radio" name="dateDynamic" value="1" id="dateDynamic1"  {% if date_dynamic %} checked="checked" {% endif %}/>
+			<input type="radio" name="dateDynamic" value="1" id="dateDynamic1"  {% if dynamic_date %} checked="checked" {% endif %}/>
 			<label for="dateDynamic1">During the past</label>
 			<input id="duration" value="{{duration}}" size="3"/> days.
 		</div>
