@@ -29,7 +29,7 @@ padding: 4px;
 {% endblock page_css %}
 {% block page_js %}
 <script type="text/javascript" src="http://www.google.com/jsapi"></script>
-<script type="text/javascript" src="/s/js/app.js"></script>
+<script type="text/javascript" src="/s/js/app.js?v={{version}}"></script>
 <script type="text/javascript">
 {% block js_state_variables %}
 var query_state = new twitgraph.QueryState('{{q|escape}}',

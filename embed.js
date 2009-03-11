@@ -1,5 +1,5 @@
 document.write('<script type="text/javascript" src="http://www.google.com/jsapi"></sc'+'ript>');
-document.write('<script type="text/javascript" src="{{base_url}}/s/js/app.js"></sc'+'ript>');
+document.write('<script type="text/javascript" src="{{base_url}}/s/js/app.js?v={{version}}"></sc'+'ript>');
 
 function twitgraph_onAppJsLoad() {
   google.load('visualization', '1', {packages: ['linechart']});
