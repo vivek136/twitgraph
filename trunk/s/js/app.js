@@ -2,47 +2,103 @@ try {
 google.load('visualization', '1', {packages: ['linechart']});
 } catch(e){}
 
+// Create a Namespace mechanism to prevent javascript name clashes.
+var Namespace =
+{
+  Register : function(_Name) {
+    var chk = false;
+    var cob = "";
+    var spc = _Name.split(".");
+    for(var i = 0; i<spc.length; i++) {
+      if(cob!=""){cob+=".";}
+      cob+=spc[i];
+      chk = this.Exists(cob);
+      if(!chk) {
+        this.Create(cob);
+      }
+    }
+    if(chk) {
+      throw "Namespace: " + _Name + " is already defined.";
+    }
+  },
 
-var search;
+  Create : function(_Src) {
+    eval("window." + _Src + " = new Object();");
+  },
 
-function addScript(url) {
+  Exists : function(_Src) {
+    eval("var NE = false; try{if(" + _Src + "){NE = true;}else{NE = false;}}catch(err){NE=false;}");
+    return NE;
+  }
+}
+
+// All our JS code will be under twitgraph.*
+// Javascript namespace mechanism is copied from http://www.codeproject.com/KB/scripting/jsnamespaces.aspx
+Namespace.Register("twitgraph");
+
+// Global package holds some (very few) global javascript variables.
+twitgraph.Globals = {
+  searchers: null,
+};
+
+// The Utils class is the general container for all non-specific useful methods.
+// The class contains only static methods.
+twitgraph.Utils = {
+
+/**
+ * Adds a script to the <head> section of the page.
+ * @param url {String} the script url.
+ **/
+addScript: function(url) {
   var script = document.createElement("script");
   script.setAttribute("src", url);
   script.setAttribute("type", "text/javascript");
   document.body.appendChild(script);
-}
+},
 
-function jsonp(url, callbackName) {
+/**
+ * Creates and sends a jsonp call.
+ * @param url {String} urls of the jsonp call.
+ * @param callbackName
+ **/
+jsonp: function(url, callbackName) {
   url += '&callback=' + callbackName;
-  addScript(url);
-}
+  this.addScript(url);
+},
 
-function twgInit() {
-  log('start');
-  log(query_state);
+/**
+ * Initializes the page.
+ **/
+init: function() {
+  twitgraph.Utils.log('start');
+  twitgraph.Utils.log(query_state);
   if (query_state.dynamic_date) {
     var today = new Date();
     var yday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
     query_state.end = yday;
     var aWeekAgo = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 8);
     query_state.start = aWeekAgo;
-    var date_start = $('dateStart');
+    var date_start = twitgraph.Utils.$('dateStart');
     if (date_start) {
       date_start.value =  query_state.start.toDateString();
     }
-    var date_end = $('dateEnd');
+    var date_end = twitgraph.Utils.$('dateEnd');
     if (date_end) {
       date_end.value =  query_state.end.toDateString();
     }
   }
-  twgRefresh();
-}
+  this.refresh();
+},
 
-function onSubmit() {
+/**
+ * The on-submit handler for the inputs form.
+ * Reads all data in the form fields and refreshes the page (graph and everything)
+ **/
+onSubmit: function() {
   // Gather input.
-  var dynamic_date = $('dateDynamic1').checked;
+  var dynamic_date = twitgraph.Utils.$('dateDynamic1').checked;
   var start, end;
-  var duration = parseInt($('duration').value);
+  var duration = parseInt(twitgraph.Utils.$('duration').value);
   if (dynamic_date) {
     if (isNaN(duration)) {
       alert("Uncool duration, dang!");
@@ -53,43 +109,66 @@ function onSubmit() {
     end = yday;
     start = new Date(yday.getFullYear(), yday.getMonth(), yday.getDate() - duration);
   } else {
-    start = new Date($('dateStart').value);
-    end = new Date($('dateEnd').value);
+    start = new Date(twitgraph.Utils.$('dateStart').value);
+    end = new Date(twitgraph.Utils.$('dateEnd').value);
     if (isNaN(start) || isNaN(end)) {
       alert("Uncool dates, dude!");
       return;
     }
   }
-  var q = $('q').value;
-  var show_text = $('showText').checked;
-  query_state = new QueryState(q, dynamic_date, start, end, duration, show_text);
-  log(query_state);
-  twgRefresh();
-}
+  var q = twitgraph.Utils.$('q').value;
+  var show_text = twitgraph.Utils.$('showText').checked;
+  query_state = new twitgraph.QueryState(q, dynamic_date, start, end, duration, show_text);
+  twitgraph.Utils.log(query_state);
+  this.refresh();
+},
 
-function twgRefresh() {
-  log(query_state);
-  query(query_state.q, query_state.start, query_state.end, query_state.show_text);
-  var title = $('twg-title');
+/**
+ * Refreshes the page elements.
+ * The page most current state is preserved in the query_state variable.
+ * This function reads the state from query_state and updates the various page elemetns by it.
+ **/
+refresh: function() {
+  twitgraph.Utils.log(query_state);
+  this.query(query_state.q, query_state.start, query_state.end, query_state.show_text);
+  var title = twitgraph.Utils.$('twg-title');
   if (title) {
     title.innerHTML = query_state.q;
   }
-  var embed_code = $('embed-code');
+  var embed_code = twitgraph.Utils.$('embed-code');
   if (embed_code) {
-    embed_code.value = serialize();
+    embed_code.value = this.getEmbedCode();
   }
-}
+},
 
-function query(q, start, end, showText) {
-  search = new SearchMaster(q, start, end, showText);
+/**
+ * Queries the twitter search service.
+ *
+ * @param q {String} the query string.
+ * @param start {Date} start date.
+ * @param end {Date} end date.
+ * @param showText {bool} Show text results from the query.
+ **/
+query: function(q, start, end, showText) {
+  var search = new twitgraph.SearchMaster(q, start, end, showText);
   search.run();
-}
+},
 
-function $(el) {
+/**
+ * A convenience for document.getElementById()
+ *
+ * @return {Object} A dom element by the el ID. null or undefined if that object doesn't exist.
+ **/
+$: function(el) {
   return document.getElementById(el);
-}
+},
 
-function serialize() {
+/**
+ * Gets embed code for the current query_state.
+ *
+ * @return {String} The embedded code string.
+ **/
+getEmbedCode: function() {
   var a = [];
   var hostEnd = document.location.href.indexOf("?");
   if (hostEnd < 0) {
@@ -122,59 +201,94 @@ function serialize() {
   a.push('"> </sc');
   a.push('ript>');
   return a.join('');
-}
+},
 
-function createDelegate(scope, callback, data) {
+/**
+ * Creates a function delegate.
+ * That's very useful for creating callbackes on specific object scopes.
+ *
+ * @param scope {Object} The scope of the created delegate. Usually this is an instance of an object enclosing the callback.
+ * @param callback {Function} A member function in scope.
+ * @para data {Object} an optional additional data object to be passed to the callback when called.
+ * @return {Function} A callback function bound to scope.
+ **/
+createDelegate: function(scope, callback, data) {
   var func = function() {
     if (data != undefined) {
       arguments.push(data);
     }
     return callback.apply(scope, arguments);
-  }	
+  }
   return func;
-}
+},
 
-
-function compareDates(a, b) {
+/**
+ * Compares dates.
+ *
+ * @param a {Date}
+ * @param b {Date}
+ * @return {int} a number greater than 0 if a > b, smaller then 0 if a < b and 0 if they equal.
+ **/
+compareDates: function(a, b) {
   return Date.parse(a.date) > Date.parse(b.date) ? 1 : -1;
-}
+},
 
-function log(msg) {
+/**
+ * Logs the message to firebug
+ **/
+log: function(msg) {
   if (window.console && window.console.log) {
     window.console.log(msg);
   }
-}
-function error(msg) {
+},
+
+/**
+ * Logs the error to firebug
+ **/
+error: function(msg) {
   if (window.console && window.console.error) {
     window.console.error(msg);
   }
+},
+
+};
+
+/**
+ * Class: SearchMaster.
+ * This is the controller of all twitter searches.
+ **/
+/**
+ * SearchMaster constructor.
+ *
+ * @param q {String} The search query.
+ * @param start {Date} Start date.
+ * @param end {Date} End date.
+ * @param showText {bool} Show the text results.
+ **/
+twitgraph.SearchMaster = function(q, start, end, showText) {
+  var HAPPY = ' :)';
+  var SAD = ' :(';
+  this.searchers = [];
+  this.doneCount = 0;
+  var i = 0;
+  this.searchers.push(new twitgraph.Searcher(q, start, end, showText, i++));
+  this.searchers.push(new twitgraph.Searcher(q + HAPPY, start, end, showText, i++));
+  this.searchers.push(new twitgraph.Searcher(q + SAD, start, end, showText, i++));
+  twitgraph.Globals.searchers = this.searchers;
 }
-//////////////////////////////////////////////////
-var HAPPY = ' :)';
-var SAD = ' :(';
-    var globalSearchers;
-    function SearchMaster(q, start, end, showText) {
-    this.searchers = [];
-    this.doneCount = 0;
-    var i = 0;
-    this.searchers.push(new Searcher(q, start, end, showText, i++));
-    this.searchers.push(new Searcher(q + HAPPY, start, end, showText, i++));
-    this.searchers.push(new Searcher(q + SAD, start, end, showText, i++));
-    globalSearchers = this.searchers;
-    }
 
-    SearchMaster.prototype.run = function () {
-    log("starting search");
-    $('twg-resultsText').innerHTML = '';
-    $('twg-graph').innerHTML = 'Loading Graph...';
-    this.doneCount = 0;
-    for (var i = 0; i < this.searchers.length; ++i) {
-    this.searchers[i].run(createDelegate(this, this.onSearchDone));
-    }
-    }
+twitgraph.SearchMaster.prototype.run = function () {
+  twitgraph.Utils.log("starting search");
+  twitgraph.Utils.$('twg-resultsText').innerHTML = '';
+  twitgraph.Utils.$('twg-graph').innerHTML = 'Loading Graph...';
+  this.doneCount = 0;
+  for (var i = 0; i < this.searchers.length; ++i) {
+    this.searchers[i].run(twitgraph.Utils.createDelegate(this, this.onSearchDone));
+  }
+}
 
-SearchMaster.prototype.onSearchDone = function (searcher) {
-  log("Searcher done " + searcher);
+twitgraph.SearchMaster.prototype.onSearchDone = function (searcher) {
+  twitgraph.Utils.log("Searcher done " + searcher);
   this.doneCount++;
   if (this.doneCount == this.searchers.length) {
     // All searches are ready
@@ -182,7 +296,7 @@ SearchMaster.prototype.onSearchDone = function (searcher) {
   }
 }
 
-SearchMaster.prototype.getAggregateResults = function() {
+twitgraph.SearchMaster.prototype.getAggregateResults = function() {
   var aggregate = {};
   for (var s = 0; s < this.searchers.length; ++s) {
     var results = this.searchers[s].getAggregateResults();
@@ -195,18 +309,18 @@ SearchMaster.prototype.getAggregateResults = function() {
   }
   var arr = [];
   for (var date in aggregate) {
-    var dateCell = new DateData(date);
+    var dateCell = new twitgraph.DateData(date);
     for (var i = 0; i < this.searchers.length; ++i) {
       dateCell[i] = aggregate[date][i];
     }
     arr.push(dateCell);
   }
-  arr.sort(compareDates);
-  log(arr);
+  arr.sort(twitgraph.Utils.compareDates);
+  twitgraph.Utils.log(arr);
   return arr;
 }
 
-SearchMaster.prototype.drawGraph = function(dates) {
+twitgraph.SearchMaster.prototype.drawGraph = function(dates) {
   // Create and populate the data table.
   var data = new google.visualization.DataTable();
   data.addColumn('string', 'Date');
@@ -222,31 +336,33 @@ SearchMaster.prototype.drawGraph = function(dates) {
   }
 
   // Create and draw the visualization.
-  $('twg-graph').innerHTML = '';
-  new google.visualization.LineChart($('twg-graph')).
-    draw(data, null);  
+  twitgraph.Utils.$('twg-graph').innerHTML = '';
+  new google.visualization.LineChart(twitgraph.Utils.$('twg-graph')).
+    draw(data, null);
 }
 
 
-////////////////////////////////////////////
-
-function DateData(date) {
+/**
+ * Class: DateData
+ * This is a simple struct-style class for holding date specific tweet stats.
+ **/
+twitgraph.DateData = function(date) {
   this.date = date;
 }
 
-DateData.prototype.getAll = function() {
+twitgraph.DateData.prototype.getAll = function() {
   return this[0];
 }
 
-DateData.prototype.getHappy = function() {
+twitgraph.DateData.prototype.getHappy = function() {
   return this[1];
 }
 
-DateData.prototype.getSad = function() {
+twitgraph.DateData.prototype.getSad = function() {
   return this[2];
 }
 
-DateData.prototype.toString = function() {
+twitgraph.DateData.prototype.toString = function() {
   var str = [this.date];
   if (this.getAll() != undefined) {
     str.push(' :-|');
@@ -258,69 +374,71 @@ DateData.prototype.toString = function() {
   }
   if (this.getSad() != undefined) {
     str.push(' :-(');
-        str.push(this.getSad());
-        }
-        return str.join('');
-        }
+    str.push(this.getSad());
+  }
+  return str.join('');
+}
 
-        /////////////////////////////////////////////
-        var ACCUMULATE = true;
-        var SEARCH_URL = 'http://search.twitter.com/search.json';
-        function Searcher(q, start, end, showText, id) {
-        this.q = q;
-        this.start = start;
-        this.end = end;
-        this.showText = showText;
-        this.results = [];
-        this.doneCallback = null;
-        this.aggregateResults = null;
-        this.id = id;
-        }
+/**
+ * Class: Searcher.
+ * This class implements the basic search algorithm per a single twitter query.
+ **/
+twitgraph.Searcher = function (q, start, end, showText, id) {
+  this.SEARCH_URL = 'http://search.twitter.com/search.json';
+  this.q = q;
+  this.start = start;
+  this.end = end;
+  this.showText = showText;
+  this.results = [];
+  this.doneCallback = null;
+  this.aggregateResults = null;
+  this.id = id;
+}
 
 
-Searcher.prototype.run = function (onDone) {
+twitgraph.Searcher.prototype.run = function (onDone) {
   this.doneCallback = onDone;
-  var searchUrl = SEARCH_URL;
+  var searchUrl = this.SEARCH_URL;
   var query = this.q + " since:" + this.buildDate(this.start) + " until:" + this.buildDate(this.end);
   searchUrl += "?q=" + encodeURIComponent(query);
   searchUrl += '&rpp=100';
-  log("Search URL: " + searchUrl);
-  jsonp(searchUrl, 'globalSearchers[' + this.id + '].onSearchResult');
+  twitgraph.Utils.log("Search URL: " + searchUrl);
+  twitgraph.Utils.jsonp(searchUrl, 'twitgraph.Globals.searchers[' + this.id + '].onSearchResult');
 }
 
-Searcher.prototype.getAggregateResults = function () {
+twitgraph.Searcher.prototype.getAggregateResults = function () {
   return this.aggregateResults;
 }
 
-Searcher.prototype.buildDate = function(date) {
+twitgraph.Searcher.prototype.buildDate = function(date) {
   return "" + date.getFullYear() + "-" + this.pad(date.getMonth() + 1) + "-" + this.pad(date.getDate());
 }
 
-Searcher.prototype.pad = function(n) {
+twitgraph.Searcher.prototype.pad = function(n) {
   return (n < 10) ? "0" + n : "" + n;
 }
 
-Searcher.prototype.onSearchResult = function(o) {
+twitgraph.Searcher.prototype.onSearchResult = function(o) {
   if (o.max_id == -1) {
     // That's an error. No mas para hoy
-    error("There were errors in the search");
+    twitgraph.Utils.error("There were errors in the search");
   }
   this.results = this.results.concat(o.results);
-  if (ACCUMULATE && o.next_page) {
-    var searchUrl = SEARCH_URL;
+  if (o.next_page) {
+    var searchUrl = this.SEARCH_URL;
     searchUrl += o.next_page;
-    log("Recursive Search: " + searchUrl);
-    jsonp(searchUrl, 'globalSearchers[' + this.id + '].onSearchResult');
+    twitgraph.Utils.log("Recursive Search: " + searchUrl);
+    twitgraph.Utils.jsonp(searchUrl, 'twitgraph.Globals.searchers[' + this.id + '].onSearchResult');
 
   } else {
     this.searchDone();
   }
   if (this.showText) {
-    $('twg-resultsText').innerHTML += this.formatTexts(o.results);
+    twitgraph.Utils.$('twg-resultsText').innerHTML += this.formatTexts(o.results);
   }
 }
 
-Searcher.prototype.formatTexts = function(results) {
+twitgraph.Searcher.prototype.formatTexts = function(results) {
   var html = [];
   for (var i = 0; i < results.length; ++i) {
     html.push('<div class="twg-tableRow">');
@@ -336,7 +454,7 @@ Searcher.prototype.formatTexts = function(results) {
   return html.join("");
 }
 
-Searcher.prototype.searchDone = function () {
+twitgraph.Searcher.prototype.searchDone = function () {
   var dates = {};
   for (var i = 0; i < this.results.length; ++i) {
     var date = new Date(this.results[i].created_at);
@@ -351,21 +469,21 @@ Searcher.prototype.searchDone = function () {
   this.doneCallback(this);
 }
 
-Searcher.prototype.toString = function () {
+twitgraph.Searcher.prototype.toString = function () {
   return 'q=' + this.q;
 }
 
 // A data structure defining the state of the current query.
-function QueryState(q, dynamic_date, start, end, duration, show_text) {
+twitgraph.QueryState = function(q, dynamic_date, start, end, duration, show_text) {
   this.q = q;
   this.dynamic_date = dynamic_date;
   this.start = start;
   this.end = end;
   this.duration = duration;
   this.show_text = show_text;
-  log(this);
+  twitgraph.Utils.log(this);
 }
-QueryState.prototype.toString = function() {
+twitgraph.QueryState.prototype.toString = function() {
   var a = [];
   a.push(this.q);
   a.push(this.dynamic_date);
@@ -376,6 +494,6 @@ QueryState.prototype.toString = function() {
   return a.join(", ");
 }
 
-if (window.twg_onAppJsLoad) {
-  twg_onAppJsLoad();
+if (window.twitgraph_onAppJsLoad) {
+  twitgraph_onAppJsLoad();
 }
