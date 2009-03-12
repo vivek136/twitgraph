@@ -5,6 +5,8 @@
 #twg-graph {
 width: 600px;
 height: 300px;
+vertical-align: middle;
+display:table-cell;
 }
 #twg-resultsText {
 font-size: 10pt;
@@ -38,6 +40,7 @@ var query_state = new twitgraph.QueryState('{{q|escape}}',
                                 Date.parse('{{end|escape}}'),
                                 {{duration|escape}},
                                 {% if show_text %}true{% else %}false{% endif%});
+var TWITGRAPH_BASE_URL = '{{base_url}}';
 {% endblock js_state_variables %}
 </script>
 {% endblock page_js %}

@@ -38,9 +38,17 @@ class MainHandler(webapp.RequestHandler):
       'start': r.get('start'),
       'end': r.get('end'),
       'version': os.environ['CURRENT_VERSION_ID'],
+      'base_url': 'http://%s' % self.get_host_name(),
     }
     return template_values
 
+
+  def get_host_name(self):
+    if os.environ.get('HTTP_HOST'):
+      url = os.environ['HTTP_HOST']
+    else:
+      url = os.environ['SERVER_NAME']
+    return url
 
 
 def main():

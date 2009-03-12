@@ -13,17 +13,9 @@ class EmbedHandler(index.MainHandler):
 
   def get(self):
     template_values = self.get_template_values();
-    template_values['base_url'] = 'http://%s' % self.get_host_name()
     self.response.headers['Content-Type'] = 'application/javascript; charset=utf-8'
     path = os.path.join(os.path.dirname(__file__), 'embed.js')
     self.response.out.write(template.render(path, template_values))
-
-  def get_host_name(self):
-    if os.environ.get('HTTP_HOST'):
-      url = os.environ['HTTP_HOST']
-    else:
-      url = os.environ['SERVER_NAME']
-    return url
 
 def main():
   application = webapp.WSGIApplication([('/embed', EmbedHandler)],
