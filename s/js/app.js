@@ -170,11 +170,7 @@ $: function(el) {
  **/
 getEmbedCode: function() {
   var a = [];
-  var hostEnd = document.location.href.indexOf("?");
-  if (hostEnd < 0) {
-    hostEnd = document.location.href.length;
-  }
-  var urlBase = document.location.href.substr(0, hostEnd);
+  var urlBase = this.getBaseUrl();
   a.push('<h3>TwitGraph for ');
   a.push(query_state.q);
   a.push('</h3>\n');
@@ -201,6 +197,15 @@ getEmbedCode: function() {
   a.push('"> </sc');
   a.push('ript>');
   return a.join('');
+},
+
+getBaseUrl: function() {
+  var hostEnd = document.location.href.indexOf("?");
+  if (hostEnd < 0) {
+    hostEnd = document.location.href.length;
+  }
+  var urlBase = document.location.href.substr(0, hostEnd);
+  return urlBase;
 },
 
 /**
@@ -280,7 +285,7 @@ twitgraph.SearchMaster = function(q, start, end, showText) {
 twitgraph.SearchMaster.prototype.run = function () {
   twitgraph.Utils.log("starting search");
   twitgraph.Utils.$('twg-resultsText').innerHTML = '';
-  twitgraph.Utils.$('twg-graph').innerHTML = 'Loading Graph...';
+  twitgraph.Utils.$('twg-graph').innerHTML = '<img src="' + TWITGRAPH_BASE_URL + '/s/img/loading.gif" alt="Loading..." tooltip="Loading..." style="display:block;margin:auto;"/>';
   this.doneCount = 0;
   for (var i = 0; i < this.searchers.length; ++i) {
     this.searchers[i].run(twitgraph.Utils.createDelegate(this, this.onSearchDone));
