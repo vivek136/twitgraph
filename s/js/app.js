@@ -150,6 +150,7 @@ refresh: function() {
  * @param showText {bool} Show text results from the query.
  **/
 query: function(q, start, end, showText) {
+  twitgraph.Utils.time('query');
   var search = new twitgraph.SearchMaster(q, start, end, showText);
   search.run();
 },
@@ -256,6 +257,18 @@ error: function(msg) {
   }
 },
 
+time: function(name) {
+  if (window.console && window.console.time) {
+    window.console.time(name);
+  }
+},
+
+timeEnd: function(name) {
+  if (window.console && window.console.timeEnd) {
+    window.console.timeEnd(name);
+  }
+},
+
 };
 
 /**
@@ -296,6 +309,7 @@ twitgraph.SearchMaster.prototype.onSearchDone = function (searcher) {
   twitgraph.Utils.log("Searcher done " + searcher);
   this.doneCount++;
   if (this.doneCount == this.searchers.length) {
+    twitgraph.Utils.timeEnd('query');
     // All searches are ready
     this.drawGraph(this.getAggregateResults());
   }
