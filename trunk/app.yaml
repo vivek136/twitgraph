@@ -13,6 +13,9 @@ handlers:
 - url: /embed
   script: embed.py
 
+- url: /results.json
+  script: results.py
+
 #- url: /about
 #  static_files: s/html/about.html
 #  upload: s/html/about.html
