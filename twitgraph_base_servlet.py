@@ -10,12 +10,12 @@ class BaseHandler(webapp.RequestHandler):
   """A base class for all twitgraph servlets"""
 
   def get_start(self):
-    start = self.request.get('start');
-    return start or datetime.date.today().strftime("%Y-%m-%d");
+    start = self.request.get('start')
+    return start or datetime.date.today().strftime("%Y-%m-%d")
 
   def get_end(self):
-    end = self.request.get('end');
-    return end or datetime.date.today().strftime("%Y-%m-%d");
+    end = self.request.get('end')
+    return end or datetime.date.today().strftime("%Y-%m-%d")
 
   def get_q(self):
     q = self.request.get('q')
@@ -36,7 +36,7 @@ class BaseHandler(webapp.RequestHandler):
     template_values = {
       'q': self.get_q(),
       'dynamic_date': dynamic_date,
-      'show_text': r.get('show_text') == '1',
+      'show_text': self.get_show_text(),
       'duration': duration or 0,
       'start': r.get('start'),
       'end': r.get('end'),
@@ -45,6 +45,9 @@ class BaseHandler(webapp.RequestHandler):
     }
     return template_values
 
+
+  def get_show_text(self):
+    return self.request.get('show_text') == "1"
 
   def get_host_name(self):
     if os.environ.get('HTTP_HOST'):

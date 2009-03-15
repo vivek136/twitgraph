@@ -39,6 +39,7 @@ Namespace.Register("twitgraph");
 // Global package holds some (very few) global javascript variables.
 twitgraph.Globals = {
   searchers: null,
+  query_runner: null,
 };
 
 // The Utils class is the general container for all non-specific useful methods.
@@ -124,6 +125,39 @@ onSubmit: function() {
 },
 
 /**
+ * The on-submit handler for the inputs form.
+ * Reads all data in the form fields and refreshes the page (graph and everything)
+ **/
+onSubmit2: function() {
+  // Gather input.
+  var dynamic_date = twitgraph.Utils.$('dateDynamic1').checked;
+  var start, end;
+  var duration = parseInt(twitgraph.Utils.$('duration').value);
+  if (dynamic_date) {
+    if (isNaN(duration)) {
+      alert("Uncool duration, dang!");
+      return;
+    }
+    var today = new Date();
+    var yday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+    end = yday;
+    start = new Date(yday.getFullYear(), yday.getMonth(), yday.getDate() - duration);
+  } else {
+    start = new Date(twitgraph.Utils.$('dateStart').value);
+    end = new Date(twitgraph.Utils.$('dateEnd').value);
+    if (isNaN(start) || isNaN(end)) {
+      alert("Uncool dates, dude!");
+      return;
+    }
+  }
+  var q = twitgraph.Utils.$('q').value;
+  var show_text = twitgraph.Utils.$('showText').checked;
+  query_state = new twitgraph.QueryState(q, dynamic_date, start, end, duration, show_text);
+  twitgraph.Utils.log(query_state);
+  this.refresh2();
+},
+
+/**
  * Refreshes the page elements.
  * The page most current state is preserved in the query_state variable.
  * This function reads the state from query_state and updates the various page elemetns by it.
@@ -131,6 +165,24 @@ onSubmit: function() {
 refresh: function() {
   twitgraph.Utils.log(query_state);
   this.query(query_state.q, query_state.start, query_state.end, query_state.show_text);
+  var title = twitgraph.Utils.$('twg-title');
+  if (title) {
+    title.innerHTML = query_state.q;
+  }
+  var embed_code = twitgraph.Utils.$('embed-code');
+  if (embed_code) {
+    embed_code.value = this.getEmbedCode();
+  }
+},
+
+/**
+ * Refreshes the page elements.
+ * The page most current state is preserved in the query_state variable.
+ * This function reads the state from query_state and updates the various page elemetns by it.
+ **/
+refresh2: function() {
+  twitgraph.Utils.log(query_state);
+  this.query2(query_state);
   var title = twitgraph.Utils.$('twg-title');
   if (title) {
     title.innerHTML = query_state.q;
@@ -153,6 +205,20 @@ query: function(q, start, end, showText) {
   twitgraph.Utils.time('query');
   var search = new twitgraph.SearchMaster(q, start, end, showText);
   search.run();
+},
+
+/**
+ * Queries the twitter search service.
+ *
+ * @param q {String} the query string.
+ * @param start {Date} start date.
+ * @param end {Date} end date.
+ * @param showText {bool} Show text results from the query.
+ **/
+query2: function(query_state) {
+  twitgraph.Utils.time('query');
+  twitgraph.Globals.query_runner = new twitgraph.QueryRunner(query_state);
+  twitgraph.Globals.query_runner.run();
 },
 
 /**
@@ -270,6 +336,36 @@ timeEnd: function(name) {
 },
 
 };
+
+/**
+ * Class: QueryRunner
+ * Sends the query to the server
+ **/
+/**
+ * SearchMaster constructor.
+ *
+ * @param q {String} The search query.
+ * @param start {Date} Start date.
+ * @param end {Date} End date.
+ * @param showText {bool} Show the text results.
+ **/
+twitgraph.QueryRunner = function(q) {
+  this.q = q;
+}
+
+twitgraph.QueryRunner.prototype.run = function() {
+  twitgraph.Utils.log("starting search");
+  twitgraph.Utils.$('twg-resultsText').innerHTML = '';
+  twitgraph.Utils.$('twg-graph').innerHTML = '<img src="' + TWITGRAPH_BASE_URL + '/s/img/loading.gif" alt="Loading..." tooltip="Loading..." style="display:block;margin:auto;"/>';
+//  var callback = twitgraph.Utils.createDelegate(this, this.onQueryDone);
+  var url = TWITGRAPH_BASE_URL + '/results.json' + '?' + this.q.toUrlParams();
+  twitgraph.Utils.jsonp(url, 'twitgraph.Globals.query_runner.onQueryDone');
+}
+
+twitgraph.QueryRunner.prototype.onQueryDone = function(result) {
+  twitgraph.Utils.log("Query done " + result);
+  twitgraph.Utils.timeEnd('query');
+}
 
 /**
  * Class: SearchMaster.
@@ -502,6 +598,24 @@ twitgraph.QueryState = function(q, dynamic_date, start, end, duration, show_text
   this.show_text = show_text;
   twitgraph.Utils.log(this);
 }
+
+twitgraph.QueryState.prototype.toUrlParams = function() {
+  var a = [];
+  a.push('q=');
+  a.push(encodeURIComponent(this.q));
+  a.push('dynamic_date=');
+  a.push(encodeURIComponent(this.dynamic_date));
+  a.push('start=');
+  a.push(encodeURIComponent(this.start.toDateString()));
+  a.push('end=');
+  a.push(encodeURIComponent(this.end.toDateString()));
+  a.push('duration=');
+  a.push(encodeURIComponent(this.duration));
+  a.push('show_text');
+  a.push(encodeURIComponent(this.show_text));
+  return a.join('&');
+}
+
 twitgraph.QueryState.prototype.toString = function() {
   var a = [];
   a.push(this.q);
