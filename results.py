@@ -11,6 +11,7 @@ from google.appengine.api import urlfetch
 from google.appengine.ext.webapp import template
 
 import twitgraph_base_servlet
+from classifier.classifier import BayesianClassifier
 
 class ResultsHandler(twitgraph_base_servlet.BaseHandler):
 
@@ -18,12 +19,63 @@ class ResultsHandler(twitgraph_base_servlet.BaseHandler):
 
   def get(self):
     all_results = self.fetch_results(self.get_twitter_query())
+    classified_results = self.classify(all_results)
     template_values = self.get_template_values();
-    template_values['json_results'] = json.dumps(all_results)
+    template_values['json_results'] = json.dumps(classified_results)
     path = os.path.join(os.path.dirname(__file__), 'results.json')
     self.response.out.write(template.render(path, template_values))
 
+  def classify(self, results):
+    """Classifies the results set by adding a "tag" attribute to each of the results.
+
+    The same set of results are returned, with additional statistics and tagging.
+    Each result gets one of the tags :), :( or :|
+    And a stats section is added.
+
+    @return An Object with two elements:
+    {"results": [{"tag": "pos",
+                  "iso_language_code": "en",
+                  "text": "@chucklelate im not that excited about google voice. although it seems neat, i dont see myself using it.",
+                  "created_at": "Sat, 14 Mar 2009 00:00:03 +0000",
+                  "profile_image_url": "http:\/\/s3.amazonaws.com\/twitter_production\/profile_images\/80373954\/IMG_0008_normal.JPG",
+                  "to_user": "chucklelate",
+                  "source": "<a href="http:\/\/twitter.com\/">web<\/a>",
+                  "from_user": "richeymanic",
+                  "from_user_id": 5160745,
+                  "to_user_id": 409063,
+                  "id": 1324759664},...],
+     "stats": {"pos": 50, "neg": 48, "neu": 102}}
+    """
+    c = BayesianClassifier()
+    stats = {c.POSITIVE: 0, c.NEGATIVE: 0, c.NEUTRAL: 0}
+    for result in results:
+      tag = c.classify(result['text'])
+      result['tag'] = tag
+      stats[tag] = stats[tag] + 1
+
+    classified = {"results": results, "stats": stats}
+
+    return classified
+
+
   def fetch_results(self, query):
+    """Fetches all search results from twitter for the given query.
+
+    This method will call twitter API iteratively again and again until it exausts all resutls for that query.
+
+    @return An array of results. Each result is a json object. Example:
+      [{"iso_language_code": "en",
+        "text": "@chucklelate im not that excited about google voice. although it seems neat, i dont see myself using it.",
+        "created_at": "Sat, 14 Mar 2009 00:00:03 +0000",
+        "profile_image_url": "http:\/\/s3.amazonaws.com\/twitter_production\/profile_images\/80373954\/IMG_0008_normal.JPG",
+        "to_user": "chucklelate",
+        "source": "<a href="http:\/\/twitter.com\/">web<\/a>",
+        "from_user": "richeymanic",
+        "from_user_id": 5160745,
+        "to_user_id": 409063,
+        "id": 1324759664},
+       {...},...]
+    """
     url = "%s?%s" % (self.SEARCH_URL, query)
     all_results = []
     while True:

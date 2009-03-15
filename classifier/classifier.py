@@ -25,17 +25,22 @@ class ComaTrainedBayes(Bayes):
   def getTokens(self, obj):
     return self._coma_tokenizer.tokenize(obj)
 
-POSITIVE = ":)"
-NEGATIVE = ":("
-NEUTRAL = ":|"
+POSITIVE = "pos"
+NEGATIVE = "neg"
+NEUTRAL  = "neu"
 
-class TwitsClassifier:
+class BayesianClassifier:
+
+  POSITIVE = POSITIVE
+  NEGATIVE = NEGATIVE
+  NEUTRAL  = NEUTRAL
 
   THRESHHOLD = 0.1
   guesser = None
 
   def __init__(self):
     self.guesser = Bayes()
+    self.train()
 
   def train(self):
     self.guesser.train(POSITIVE, "cool")
@@ -498,9 +503,6 @@ s = ["RT @richdemuro: Experiment - Add your own on-screen annotations to this Sy
     "since when r there colored annotations on youtube? i like it"]
 
 
-classifier = TwitsClassifier()
-classifier.train()
-
-
-for i in s:
-  print '%s\t %s' % (classifier.classify(i), i)
+#classifier = BayesianClassifier()
+#for i in s:
+#  print '%s\t %s' % (classifier.classify(i), i)
