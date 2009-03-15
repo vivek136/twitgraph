@@ -52,7 +52,7 @@ var TWITGRAPH_BASE_URL = '{{base_url}}';
 {% block inputs %}
 <div id="main">
         <strong>Track how often twitter users are talking about you</strong>
-        <form onSubmit="twitgraph.Utils.onSubmit();return false" id="form">
+        <form onSubmit="{% block on_submit %}twitgraph.Utils.onSubmit();{% endblock %}return false" id="form">
                 <div class="input-div">
                         Search: <input id="q" value="{{q}}"/>
                 </div>
