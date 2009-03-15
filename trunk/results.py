@@ -22,6 +22,9 @@ class ResultsHandler(twitgraph_base_servlet.BaseHandler):
     classified_results = self.classify(all_results)
     template_values = self.get_template_values();
     template_values['json_results'] = json.dumps(classified_results)
+    jsonp_callback = self.get_jsonp_callback()
+    if jsonp_callback:
+      template_values['callback'] = jsonp_callback
     path = os.path.join(os.path.dirname(__file__), 'results.json')
     self.response.out.write(template.render(path, template_values))
 
@@ -114,6 +117,9 @@ class ResultsHandler(twitgraph_base_servlet.BaseHandler):
     query = {'q': ('%s since:%s until:%s' % (self.get_q(), self.get_start(), self.get_end())),
         'rpp': 100};
     return urllib.urlencode(query)
+
+  def get_jsonp_callback(self):
+    return self.request.get('callback')
 
 def real_main():
   application = webapp.WSGIApplication([('/results.json', ResultsHandler)],
