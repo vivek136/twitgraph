@@ -11,7 +11,7 @@ from google.appengine.api import urlfetch
 from google.appengine.ext.webapp import template
 
 import twitgraph_base_servlet
-from classifier.classifier import BayesianClassifier
+from classifier.bayes import BayesianClassifier
 
 class ResultsHandler(twitgraph_base_servlet.BaseHandler):
 
