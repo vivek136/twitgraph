@@ -1,1 +1,1 @@
-{{json_results}}
+{% if callback %}{{callback}}({% endif %}{{json_results}}{% if callback %});{% endif %}
