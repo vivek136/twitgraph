@@ -39,11 +39,17 @@ class ResultsHandler(twitgraph_base_servlet.BaseHandler):
       date = datetime.strptime(result['created_at'], "%a, %d %b %Y %H:%M:%S +0000")
       date_str = date.strftime("%Y-%m-%d")
       if agg.get(date_str) is None:
-        agg[date_str] = 0
-      agg[date_str] = agg[date_str] + 1
+        agg[date_str] = {BayesianClassifier.POSITIVE: 0, BayesianClassifier.NEGATIVE: 0, BayesianClassifier.NEUTRAL: 0, 'date': date_str}
       tag = result['tag']
-      stats[tag] = stats[tag] + 1
-    return (stats, agg)
+      agg[date_str][tag] += 1
+      stats[tag] += 1
+
+    # Put the aggregate results in a list and sort them
+    agg_list = []
+    for i in agg:
+      agg_list.append(agg[i])
+    agg_list.sort(cmp=lambda x,y: cmp(x['date'], y['date']))
+    return (stats, agg_list)
 
     classified = {"results": results, "stats": stats}
   def classify(self, results):
