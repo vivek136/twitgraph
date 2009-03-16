@@ -18,13 +18,19 @@ class ResultsHandler(twitgraph_base_servlet.BaseHandler):
   SEARCH_URL = 'http://search.twitter.com/search.json'
 
   def get(self):
-    all_results = self.fetch_results(self.get_twitter_query())
-    classified_results = self.classify(all_results)
-    stats, aggregate_results = self.aggregate(classified_results)
-    ret = {"stats": stats, "aggregate": aggregate_results}
-    if self.get_show_text():
-      ret['results'] = classified_results
     template_values = self.get_template_values()
+    all_results = self.fetch_results(self.get_twitter_query())
+    ret = {}
+    if all_results is None:
+      status = 500
+    else:
+      status = 200
+      classified_results = self.classify(all_results)
+      stats, aggregate_results = self.aggregate(classified_results)
+      ret = {"stats": stats, "aggregate": aggregate_results}
+      if self.get_show_text():
+        ret['results'] = classified_results
+    ret['status'] = status;
     template_values['json_results'] = json.dumps(ret)
     jsonp_callback = self.get_jsonp_callback()
     if jsonp_callback:
@@ -97,6 +103,7 @@ class ResultsHandler(twitgraph_base_servlet.BaseHandler):
         "to_user_id": 409063,
         "id": 1324759664},
        {...},...]
+       If there's an error, returns None
     """
     url = "%s?%s" % (self.SEARCH_URL, query)
     all_results = []
@@ -105,6 +112,7 @@ class ResultsHandler(twitgraph_base_servlet.BaseHandler):
       if not result:
         # Error
         log.error("Resutls empty, error")
+        return None
         break
       all_results.extend(result.get('results'))
       if result.get('next_page'):
@@ -112,6 +120,7 @@ class ResultsHandler(twitgraph_base_servlet.BaseHandler):
       elif result.get('max_id') == -1:
         # Error
         log.error("result.max_id == -1")
+        return None
         break
       else:
         # That's OK, finished successfuly
@@ -160,4 +169,4 @@ def profile_main():
   log.info("Profile data:\n%s", stream.getvalue())
 
 if __name__ == '__main__':
-  profile_main()
+  real_main()
