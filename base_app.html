@@ -8,6 +8,12 @@ height: 300px;
 vertical-align: middle;
 display:table-cell;
 }
+#twg-graph-pie {
+width: 600px;
+height: 300px;
+vertical-align: middle;
+display:table-cell;
+}
 #twg-resultsText {
 font-size: 10pt;
 padding: 20px;
@@ -82,6 +88,7 @@ var TWITGRAPH_BASE_URL = '{{base_url}}';
 <div style="clear:both"/>
 {% block graph %}
         <div id="twg-graph"></div>
+        <div id="twg-graph-pie"></div>
 {% endblock %}
 {% block attribution %}
         <div>

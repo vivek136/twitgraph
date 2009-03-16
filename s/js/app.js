@@ -1,5 +1,5 @@
 try {
-google.load('visualization', '1', {packages: ['areachart']});
+google.load('visualization', '1', {packages: ['areachart', 'piechart']});
 google.setOnLoadCallback(twitgraph.Utils.createDelegate(twitgraph.Utils, twitgraph.Utils.onGvizLoaded));
 } catch(e){}
 
@@ -334,7 +334,8 @@ twitgraph.QueryRunner.prototype.onQueryDone = function(result) {
   }
   twitgraph.Utils.timeEnd('query');
   var grapher = new twitgraph.Grapher(result);
-  grapher.draw();
+  grapher.drawLineChart();
+  grapher.drawPieChart();
   if (query_state.show_text) {
     var texter = new twitgraph.Texter(result);
     texter.draw();
@@ -374,7 +375,7 @@ twitgraph.Grapher = function(result) {
   this.result = result;
 }
 
-twitgraph.Grapher.prototype.draw = function() {
+twitgraph.Grapher.prototype.drawLineChart = function() {
   var aggregate = this.result.aggregate;
   // Create and populate the data table.
   var data = new google.visualization.DataTable();
@@ -395,6 +396,28 @@ twitgraph.Grapher.prototype.draw = function() {
   var chart = new google.visualization.AreaChart(twitgraph.Utils.$('twg-graph'));
   chart.draw(data, {legend: 'bottom',
                     isStacked: true,
+                    colors: ["#FF4848", "#4AE371", "#2F74D0"]});
+}
+
+twitgraph.Grapher.prototype.drawPieChart = function() {
+  var stats = this.result.stats;
+  // Create and populate the data table.
+  var data = new google.visualization.DataTable();
+  data.addColumn('string', 'Sentiment');
+  data.addColumn('number', 'Tweet count');
+  data.addRows(3);
+  data.setValue(0, 0, ':-(');
+  data.setValue(0, 1, stats.neg);
+  data.setValue(1, 0, ':-)');
+  data.setValue(1, 1, stats.pos);
+  data.setValue(2, 0, ':-|');
+  data.setValue(2, 1, stats.neu);
+
+  // Create and draw the visualization.
+  twitgraph.Utils.$('twg-graph-pie').innerHTML = '';
+  var chart = new google.visualization.PieChart(twitgraph.Utils.$('twg-graph-pie'));
+  chart.draw(data, {legend: 'none',
+                    is3D: true,
                     colors: ["#FF4848", "#4AE371", "#2F74D0"]});
 }
 
