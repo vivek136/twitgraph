@@ -1,5 +1,6 @@
 try {
-google.load('visualization', '1', {packages: ['linechart']});
+google.load('visualization', '1', {packages: ['linechart', "areachart"]});
+google.setOnLoadCallback(twitgraph.Utils.createDelegate(twitgraph.Utils, twitgraph.Utils.onGvizLoaded));
 } catch(e){}
 
 // Create a Namespace mechanism to prevent javascript name clashes.
@@ -67,10 +68,17 @@ jsonp: function(url, callbackName) {
   this.addScript(url);
 },
 
+onGvizLoaded: function() {
+  if (!this.initialized) {
+    this.init();
+  }
+},
+
 /**
  * Initializes the page.
  **/
 init: function() {
+  this.initialized = true;
   twitgraph.Utils.log('start');
   twitgraph.Utils.log(query_state);
   if (query_state.dynamic_date) {
@@ -81,11 +89,11 @@ init: function() {
     query_state.start = aWeekAgo;
     var date_start = twitgraph.Utils.$('dateStart');
     if (date_start) {
-      date_start.value =  query_state.start.toDateString();
+      date_start.value = twitgraph.Utils.serializeDate(query_state.start);
     }
     var date_end = twitgraph.Utils.$('dateEnd');
     if (date_end) {
-      date_end.value =  query_state.end.toDateString();
+      date_end.value = twitgraph.Utils.serializeDate(query_state.end);
     }
   }
   this.refresh();
@@ -110,9 +118,9 @@ onSubmit: function() {
     end = yday;
     start = new Date(yday.getFullYear(), yday.getMonth(), yday.getDate() - duration);
   } else {
-    start = new Date(twitgraph.Utils.$('dateStart').value);
-    end = new Date(twitgraph.Utils.$('dateEnd').value);
-    if (isNaN(start) || isNaN(end)) {
+    start = this.parseDate(this.$('dateStart').value);
+    end = this.parseDate(this.$('dateEnd').value);
+    if (!start || !end) {
       alert("Uncool dates, dude!");
       return;
     }
@@ -143,9 +151,9 @@ onSubmit2: function() {
     end = yday;
     start = new Date(yday.getFullYear(), yday.getMonth(), yday.getDate() - duration);
   } else {
-    start = new Date(twitgraph.Utils.$('dateStart').value);
-    end = new Date(twitgraph.Utils.$('dateEnd').value);
-    if (isNaN(start) || isNaN(end)) {
+    start = this.parseDate(this.$('dateStart').value);
+    end = this.parseDate(this.$('dateEnd').value);
+    if (!start || !end) {
       alert("Uncool dates, dude!");
       return;
     }
@@ -255,9 +263,9 @@ getEmbedCode: function() {
   } else {
     a.push('0');
     a.push('&start=');
-    a.push(encodeURIComponent(query_state.start.toDateString()));
+    a.push(encodeURIComponent(twitgraph.Utils.serializeDate(query_state.start)));
     a.push('&end=');
-    a.push(encodeURIComponent(query_state.end.toDateString()));
+    a.push(encodeURIComponent(twitgraph.Utils.serializeDate(query_state.end)));
   }
   a.push('&show_text=');
   a.push(query_state.show_text ? '1' : '0');
@@ -303,6 +311,51 @@ createDelegate: function(scope, callback, data) {
  **/
 compareDates: function(a, b) {
   return Date.parse(a.date) > Date.parse(b.date) ? 1 : -1;
+},
+
+/**
+ * Serializes a date to a string of the format YYYY-mm-dd
+ *
+ * @param d {Date} a Date object
+ * @return {String] a string of the format YYYY-mm-dd, for example: 2009-03-20
+ **/
+serializeDate: function(d) {
+  var a = [];
+  a.push(d.getFullYear());
+  a.push(this._pad(d.getMonth() + 1)); // Months are zero based
+  a.push(this._pad(d.getDate()));
+  return a.join('-');
+},
+
+_pad: function(n) {
+  return (n < 10) ? "0" + n : "" + n;
+},
+
+/**
+ * Parses a date string in the format YYYY-mm-dd
+ *
+ * @param s {String} a string date specifier. Example: 2009-01-20
+ * @return {Date} a date object. null if date was invalid.
+ **/
+parseDate: function(s) {
+  if (!s) {
+    this.error('Invalid date string: ' + s);
+    return null;
+  }
+  var split = s.split('-');
+  if (split.lentgh < 3) {
+    this.error('Invalid date string: ' + s);
+    return null;
+  }
+  var year = parseInt(split[0], 10);
+  var month = parseInt(split[1], 10);
+  var day = parseInt(split[2], 10);
+  if (isNaN(year) || isNaN(month) || isNaN(day)) {
+    this.error('Invalid date string: ' + s);
+    return null;
+  }
+  var d = new Date(year, month - 1 /* months are 0 based */, day);
+  return d;
 },
 
 /**
@@ -357,7 +410,6 @@ twitgraph.QueryRunner.prototype.run = function() {
   twitgraph.Utils.log("starting search");
   twitgraph.Utils.$('twg-resultsText').innerHTML = '';
   twitgraph.Utils.$('twg-graph').innerHTML = '<img src="' + TWITGRAPH_BASE_URL + '/s/img/loading.gif" alt="Loading..." tooltip="Loading..." style="display:block;margin:auto;"/>';
-//  var callback = twitgraph.Utils.createDelegate(this, this.onQueryDone);
   var url = TWITGRAPH_BASE_URL + '/results.json' + '?' + this.q.toUrlParams();
   twitgraph.Utils.jsonp(url, 'twitgraph.Globals.query_runner.onQueryDone');
 }
@@ -365,6 +417,34 @@ twitgraph.QueryRunner.prototype.run = function() {
 twitgraph.QueryRunner.prototype.onQueryDone = function(result) {
   twitgraph.Utils.log("Query done " + result);
   twitgraph.Utils.timeEnd('query');
+  var grapher = new twitgraph.Grapher(result);
+  grapher.draw();
+}
+
+twitgraph.Grapher = function(result) {
+  this.result = result;
+}
+
+twitgraph.Grapher.prototype.draw = function() {
+  var aggregate = this.result.aggregate;
+  // Create and populate the data table.
+  var data = new google.visualization.DataTable();
+  data.addColumn('string', 'Date');
+  data.addColumn('number', ':-(');
+  data.addColumn('number', ':-)');
+  data.addColumn('number', ':-|');
+  data.addRows(aggregate.length);
+  for (var i = 0; i < aggregate.length; ++i) {
+    data.setCell(i, 0, aggregate[i].date);
+    data.setCell(i, 1, aggregate[i].neg);
+    data.setCell(i, 2, aggregate[i].pos);
+    data.setCell(i, 3, aggregate[i].neu);
+  }
+
+  // Create and draw the visualization.
+  twitgraph.Utils.$('twg-graph').innerHTML = '';
+  var chart = new google.visualization.AreaChart(twitgraph.Utils.$('twg-graph'));
+  chart.draw(data, {legend: 'bottom', isStacked: true, colors: ["red", "green", "blue"]});
 }
 
 /**
@@ -574,7 +654,7 @@ twitgraph.Searcher.prototype.searchDone = function () {
   for (var i = 0; i < this.results.length; ++i) {
     var date = new Date(this.results[i].created_at);
     //Extract only the short format which includes the date only
-    date = date.toDateString();
+    date = twitgraph.Utils.serializeDate(date);
     if (!dates[date]) {
       dates[date] = 0;
     }
@@ -596,32 +676,31 @@ twitgraph.QueryState = function(q, dynamic_date, start, end, duration, show_text
   this.end = end;
   this.duration = duration;
   this.show_text = show_text;
-  twitgraph.Utils.log(this);
 }
 
 twitgraph.QueryState.prototype.toUrlParams = function() {
   var a = [];
-  a.push('q=');
+  a.push('&q=');
   a.push(encodeURIComponent(this.q));
-  a.push('dynamic_date=');
+  a.push('&dynamic_date=');
   a.push(encodeURIComponent(this.dynamic_date));
-  a.push('start=');
-  a.push(encodeURIComponent(this.start.toDateString()));
-  a.push('end=');
-  a.push(encodeURIComponent(this.end.toDateString()));
-  a.push('duration=');
+  a.push('&start=');
+  a.push(encodeURIComponent(twitgraph.Utils.serializeDate(this.start)));
+  a.push('&end=');
+  a.push(encodeURIComponent(twitgraph.Utils.serializeDate(this.end)));
+  a.push('&duration=');
   a.push(encodeURIComponent(this.duration));
-  a.push('show_text');
-  a.push(encodeURIComponent(this.show_text));
-  return a.join('&');
+  a.push('&show_text=');
+  a.push(this.show_text ? '1' : '0');
+  return a.join('');
 }
 
 twitgraph.QueryState.prototype.toString = function() {
   var a = [];
   a.push(this.q);
   a.push(this.dynamic_date);
-  a.push(this.start.toDateString());
-  a.push(this.end.toDateString());
+  a.push(twitgraph.Utils.serializeDate(this.start));
+  a.push(twitgraph.Utils.serializeDate(this.end));
   a.push(this.duration);
   a.push(this.show_text);
   return a.join(", ");

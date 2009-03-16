@@ -3,7 +3,6 @@ document.write('<script type="text/javascript" src="{{base_url}}/s/js/app.js?v={
 
 var TWITGRAPH_BASE_URL = '{{base_url}}';
 function twitgraph_onAppJsLoad() {
-  google.load('visualization', '1', {packages: ['linechart']});
   window.query_state = new twitgraph.QueryState('{{q|escape}}',
       {% if dynamic_date %}true{% else %}false{% endif%},
       Date.parse('{{start|escape}}'),
@@ -11,7 +10,7 @@ function twitgraph_onAppJsLoad() {
       {{duration|escape}},
       {% if show_text %}true{% else %}false{% endif%});
   twitgraph.Utils.$('twit-graph').innerHTML = '<div id="twg-graph"></div><div id="twg-resultsText"></div>';
-  google.setOnLoadCallback(twitgraph.Utils.createDelegate(twitgraph.Utils, twitgraph.Utils.init));
+  google.setOnLoadCallback(twitgraph.Utils.createDelegate(twitgraph.Utils, twitgraph.Utils.onGvizLoaded));
 }
 
 document.write('<style>' +
