@@ -322,6 +322,7 @@ twitgraph.QueryRunner.prototype.run = function() {
   twitgraph.Utils.log("starting search");
   twitgraph.Utils.$('twg-resultsText').innerHTML = '';
   twitgraph.Utils.$('twg-graph').innerHTML = '<img src="' + TWITGRAPH_BASE_URL + '/s/img/loading.gif" alt="Loading..." tooltip="Loading..." style="display:block;margin:auto;"/>';
+  twitgraph.Utils.$('twg-graph-pie').innerHTML = '';
   var url = TWITGRAPH_BASE_URL + '/results.json' + '?' + this.q.toUrlParams();
   twitgraph.Utils.jsonp(url, 'twitgraph.Globals.query_runner.onQueryDone');
 }
