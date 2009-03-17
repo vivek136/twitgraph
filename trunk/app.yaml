@@ -10,8 +10,8 @@ handlers:
 - url: /about
   script: about.py
 
-- url: /index2
-  script: index2.py
+- url: /embed_static
+  script: embed_static.py
 
 - url: /embed
   script: embed.py

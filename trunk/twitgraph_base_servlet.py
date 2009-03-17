@@ -5,46 +5,58 @@ import os
 
 from google.appengine.ext import webapp
 
+DATE_FORMAT = '%Y-%m-%d'
 
 class BaseHandler(webapp.RequestHandler):
   """A base class for all twitgraph servlets"""
 
-  def get_start(self):
-    start = self.request.get('start')
-    return start or datetime.date.today().strftime("%Y-%m-%d")
-
-  def get_end(self):
-    end = self.request.get('end')
-    return end or datetime.date.today().strftime("%Y-%m-%d")
-
-  def get_q(self):
-    q = self.request.get('q')
-    return q or "youtube annotations"
-
   def get_template_values(self):
-    r = self.request
-
-    if r.get('dynamic_date') == '0':
-      dynamic_date = False
-    else:
-      dynamic_date = True
-
-    duration = r.get('duration')
-    if not duration:
-      duration = 7
-
     template_values = {
       'q': self.get_q(),
-      'dynamic_date': dynamic_date,
+      'dynamic_date': self.is_dynamic_date(),
       'show_text': self.get_show_text(),
-      'duration': duration or 0,
-      'start': r.get('start'),
-      'end': r.get('end'),
+      'duration': self.get_duration(),
+      'start': self.get_start(),
+      'end': self.get_end(),
       'version': os.environ['CURRENT_VERSION_ID'],
       'base_url': 'http://%s' % self.get_host_name(),
     }
     return template_values
 
+  def get_start(self):
+    return self.get_start_as_date().strftime(DATE_FORMAT)
+
+  def get_end(self):
+    return self.get_end_as_date().strftime(DATE_FORMAT)
+
+  def get_end_as_date(self):
+    if self.is_dynamic_date():
+      return datetime.date.today()
+    end = self.request.get('end')
+    if end:
+      end = datetime.datetime.strptime(end, DATE_FORMAT)
+    return end or datetime.date.today()
+
+  def get_start_as_date(self):
+    if self.is_dynamic_date():
+      return self.get_end_as_date() - datetime.timedelta(days=self.get_duration())
+    start = self.request.get('start')
+    if start:
+      start = datetime.datetime.strptime(start, DATE_FORMAT)
+    return start or datetime.date.today()
+
+  def get_q(self):
+    q = self.request.get('q')
+    return q or "youtube annotations"
+
+  def is_dynamic_date(self):
+    return (self.request.get('dynamic_date') == 0) or True
+
+  def get_duration(self):
+    duration = self.request.get('duration')
+    if duration:
+      return int(duration)
+    return 7
 
   def get_show_text(self):
     return self.request.get('show_text') == "1"

@@ -78,7 +78,6 @@ onGvizLoaded: function() {
 init: function() {
   this.initialized = true;
   twitgraph.Utils.log('start');
-  twitgraph.Utils.log(query_state);
   if (query_state.dynamic_date) {
     var today = new Date();
     var yday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
