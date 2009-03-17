@@ -19,7 +19,7 @@ function twitgraph_onAppJsLoad() {
 
 document.write('<style>' +
     '#twg-graph{width:600px;height:300px;vertical-align:middle;display:table-cell;}' +
-    '#twg-graph-pie{width:600px;height:300px;vertical-align:middle;display:table-cell;}' +
+    '#twg-graph-pie{width:300px;height:300px;vertical-align:middle;display:table-cell;}' +
     '#twg-resultsText{font-size:10pt;padding:20px;font-family:Arial;}' +
     '.twg-user{color:green;width:150px;display:block;float:left;}' +
     '.twg-text{display:block;float:left;}' +
