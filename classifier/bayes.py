@@ -40,9 +40,11 @@ class BayesianClassifier:
 
   def __init__(self):
     self.guesser = Bayes()
-    self.train()
 
-  def train(self):
+  def train(self, example_tweets):
+    for t in example_tweets:
+      self.guesser.train(t.sentiment, t.text)
+
     self.guesser.train(POSITIVE, "cool")
     self.guesser.train(POSITIVE, "Woo")
     self.guesser.train(POSITIVE, "quite amazing")

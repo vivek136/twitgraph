@@ -270,6 +270,28 @@ parseDate: function(s) {
 },
 
 /**
+ * Sends the server a tagged text for it to learn
+ **/
+learn: function(elm, text) {
+  text = unescape(text);
+  tag = elm.value;
+  this.log('Learning: ' + tag + '   ' + text);
+  var url = [];
+  url.push(TWITGRAPH_BASE_URL);
+  url.push('/learn?');
+  url.push('&text=');
+  url.push(encodeURIComponent(text));
+  url.push('&sentiment=');
+  url.push(tag);
+  url = url.join('');
+  this.jsonp(url, 'twitgraph.Utils.onLearnDone');
+},
+
+onLearnDone: function(result) {
+  this.log(result);
+},
+
+/**
  * Logs the message to firebug
  **/
 log: function(msg) {
@@ -320,7 +342,7 @@ twitgraph.QueryRunner = function(q) {
 twitgraph.QueryRunner.prototype.run = function() {
   twitgraph.Utils.log("starting search");
   twitgraph.Utils.$('twg-resultsText').innerHTML = '';
-  twitgraph.Utils.$('twg-graph').innerHTML = '<img src="' + TWITGRAPH_BASE_URL + '/s/img/loading.gif" alt="Loading..." tooltip="Loading..." style="display:block;margin:auto;"/>';
+  twitgraph.Utils.$('twg-graph').innerHTML = '<img src="' + TWITGRAPH_BASE_URL + '/s/img/loading.gif" alt="Loading..." title="Loading..." style="display:block;margin:auto;"/>';
   twitgraph.Utils.$('twg-graph-pie').innerHTML = '';
   var url = TWITGRAPH_BASE_URL + '/results.json' + '?' + this.q.toUrlParams();
   twitgraph.Utils.jsonp(url, 'twitgraph.Globals.query_runner.onQueryDone');
@@ -343,7 +365,7 @@ twitgraph.QueryRunner.prototype.onQueryDone = function(result) {
 }
 
 twitgraph.QueryRunner.prototype.showSorry = function() {
-  twitgraph.Utils.$('twg-graph').innerHTML = '<img src="' + TWITGRAPH_BASE_URL + '/s/img/ouch.jpg" tooltip="ouch" alt="ouch" /><br/>Ouch, there was an error. Care to try again later?<br/>';
+  twitgraph.Utils.$('twg-graph').innerHTML = '<img src="' + TWITGRAPH_BASE_URL + '/s/img/ouch.jpg" title="ouch" alt="ouch" /><br/>Ouch, there was an error. Care to try again later?<br/>';
 }
 
 twitgraph.Texter = function(result) {
@@ -358,17 +380,42 @@ twitgraph.Texter.prototype.draw = function() {
 twitgraph.Texter.prototype.formatTexts = function(results) {
   var html = [];
   for (var i = 0; i < results.length; ++i) {
+    tag = results[i].tag;
+    text = results[i].text;
     html.push('<div class="twg-tableRow">');
+    html.push('<span class="twg-learn">');
+    html.push('<select title="O-mighty human, teach me right from wrong!"');
+    html.push(' onchange="twitgraph.Utils.learn(this, \'' + escape(text) + '\')"');
+    html.push('">');
+    html.push(this.createDropDownOption('pos', ':-)', tag, text));
+    html.push(this.createDropDownOption('neg', ':-(', tag, text));
+    html.push(this.createDropDownOption('neu', ':-|', tag, text));
+    html.push('</select>');
+    html.push('</span>');
     html.push('<span class="twg-user">');
     html.push(results[i].from_user);
     html.push(": ");
     html.push("</span>");
     html.push('<span class="twg-text">');
-    html.push(results[i].text);
+    html.push(text);
     html.push('</span>');
     html.push('</div>');
   }
   return html.join("");
+}
+
+twitgraph.Texter.prototype.createDropDownOption = function(tag, visual, selectedTag) {
+  var s = []
+  s.push('<option value="');
+  s.push(tag);
+  s.push('"');
+  if (tag == selectedTag) {
+    s.push(' selected="selected"');
+  }
+  s.push('>');
+  s.push(visual);
+  s.push('</option>');
+  return s.join('');
 }
 
 twitgraph.Grapher = function(result) {

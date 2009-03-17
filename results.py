@@ -1,18 +1,14 @@
 #!/usr/bin/env python
 
-import os
 import wsgiref.handlers
 import logging as log
 import cProfile, pstats, StringIO
-from datetime import datetime
-from django.utils import simplejson as json
 from google.appengine.ext import webapp
-from google.appengine.ext.webapp import template
-import twitgraph_base_servlet
 from biz.twitter_fetcher import TwitterFetcher
 from biz.tweets_analyzer import TweetsAnalyzer
+from base_json import JsonHandler
 
-class ResultsHandler(twitgraph_base_servlet.BaseHandler):
+class ResultsHandler(JsonHandler):
 
   SEARCH_URL = 'http://search.twitter.com/search.json'
 
@@ -32,15 +28,7 @@ class ResultsHandler(twitgraph_base_servlet.BaseHandler):
       if self.get_show_text():
         ret['results'] = classified_results
     ret['status'] = status;
-    template_values['json_results'] = json.dumps(ret)
-    jsonp_callback = self.get_jsonp_callback()
-    if jsonp_callback:
-      template_values['callback'] = jsonp_callback
-    path = os.path.join(os.path.dirname(__file__), 'results.json')
-    self.response.out.write(template.render(path, template_values))
-
-  def get_jsonp_callback(self):
-    return self.request.get('callback')
+    self.spit_json(ret)
 
 def real_main():
   application = webapp.WSGIApplication([('/results.json', ResultsHandler)],
