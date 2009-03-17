@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+{% for t in tweets %}
+  <div>
+    {{t.sentiment}} - {{t.text}}
+  </div>
+  {% endfor %}
+{% endblock %}

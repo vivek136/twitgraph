@@ -3,6 +3,10 @@
 import logging as log
 from datetime import datetime
 from classifier.bayes import BayesianClassifier
+from twitgraph_base_servlet import DATE_FORMAT
+import data.db as db
+
+TWITTER_DATE_FORMAT = '%a, %d %b %Y %H:%M:%S +0000'
 
 class TweetsAnalyzer:
   """Analyzes tweets by classifying them and aggregating them"""
@@ -12,8 +16,8 @@ class TweetsAnalyzer:
     stats = {BayesianClassifier.POSITIVE: 0, BayesianClassifier.NEGATIVE: 0, BayesianClassifier.NEUTRAL: 0}
     agg = {}
     for result in classified_results:
-      date = datetime.strptime(result['created_at'], "%a, %d %b %Y %H:%M:%S +0000")
-      date_str = date.strftime("%Y-%m-%d")
+      date = datetime.strptime(result['created_at'], TWITTER_DATE_FORMAT)
+      date_str = date.strftime(DATE_FORMAT)
       if agg.get(date_str) is None:
         agg[date_str] = {BayesianClassifier.POSITIVE: 0, BayesianClassifier.NEGATIVE: 0, BayesianClassifier.NEUTRAL: 0, 'date': date_str}
       tag = result.get('tag') or BayesianClassifier.NEUTRAL
@@ -50,6 +54,7 @@ class TweetsAnalyzer:
       "id": 1324759664},...],
     """
     c = BayesianClassifier()
+    c.train(db.fetch_all_tweets())
     for result in results:
       tag = c.classify(result['text'])
       result['tag'] = tag
