@@ -62,7 +62,7 @@ class BaseHandler(webapp.RequestHandler):
             'clear: both;' \
             'padding: 4px;' \
             '}' \
-            '.twg-learn a {' \
+            '.twg-learn a img {' \
             'filter:alpha(opacity=40); -moz-opacity:.4; opacity:.4;'\
             '}' \
             '.twg-learn img {' \
@@ -70,10 +70,10 @@ class BaseHandler(webapp.RequestHandler):
             'padding: 1px;' \
             'margin-left: 2px;' \
             '}' \
-            'a.twg-emoticon-selected {' \
+            'a.twg-emoticon-selected img {' \
             'filter:alpha(opacity=100); -moz-opacity:1; opacity:1;'\
             '}' \
-            'a.twg-emoticon-over {' \
+            'a.twg-emoticon-over img {' \
             'filter:alpha(opacity=70); -moz-opacity:.7; opacity:.7;'\
             '}' \
             '</style>'
