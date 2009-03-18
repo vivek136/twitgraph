@@ -17,6 +17,7 @@ class MainHandler(JsonHandler):
     tweet = Tweet()
     tweet.text = self.get_text()
     tweet.sentiment = self.get_sentiment()
+    tweet.query = self.get_q()
     db.add_tweet(tweet)
     ret = {'status': 200, 'msg': 'Thanks!'}
     self.spit_json(ret)
