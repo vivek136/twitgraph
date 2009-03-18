@@ -243,11 +243,12 @@ parseDate: function(s) {
  * Sends the server a tagged text for it to learn
  **/
 learn: function(tag, text, a) {
-  if (a.className == 'twg-emoticon-selected') {
-    return;
-  }
+//  if (a.className == 'twg-emoticon-selected') {
+//    return;
+//  }
+  var query = query_state.q;
   text = unescape(text);
-  this.log('Learning: ' + tag + '   ' + text);
+  this.log('Learning: ' + tag + '   ' + text + '  - Query: ' + query);
   var url = [];
   url.push(TWITGRAPH_BASE_URL);
   url.push('/learn?');
@@ -255,6 +256,8 @@ learn: function(tag, text, a) {
   url.push(encodeURIComponent(text));
   url.push('&sentiment=');
   url.push(tag);
+  url.push('&q=');
+  url.push(encodeURIComponent(query));
   url = url.join('');
   this.jsonp(url, 'twitgraph.Utils.onLearnDone');
   var allEmoticons = a.parentNode.childNodes;

@@ -1,8 +1,21 @@
 {% extends "base.html" %}
+{%block page_css%}
+<style>
+.pos {
+color:green;
+}
+.neg {
+color:red;
+}
+.neu {
+color:blue;
+}
+</style>
+{% endblock %}
 {% block content %}
 {% for t in tweets %}
-  <div>
-    {{t.sentiment}} - {{t.text}}
+  <div class="{{t.sentiment}}">
+    {{t.text}} ({{t.query}})
   </div>
   {% endfor %}
 {% endblock %}
