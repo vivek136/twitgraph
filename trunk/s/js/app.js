@@ -9,6 +9,7 @@ google.setOnLoadCallback(twitgraph.Utils.createDelegate(twitgraph.Utils, twitgra
 // Global package holds some (very few) global javascript variables.
 twitgraph.Globals = {
   query_runner: null,
+  query_state: null
 };
 
 // The Utils class is the general container for all non-specific useful methods.
@@ -46,21 +47,29 @@ onGvizLoaded: function() {
  * Initializes the page.
  **/
 init: function() {
-  this.initialized = true;
   twitgraph.Utils.log('start');
-  if (query_state.dynamic_date) {
+  this.initialized = true;
+  twitgraph.Globals.query_state =
+      new twitgraph.QueryState(__twg_init_q,
+                               __twg_init_dynamic_date,
+                               __twg_init_start,
+                               __twg_init_end,
+                               __twg_init_duration,
+                               __twg_init_show_text);
+  var qs = twitgraph.Globals.query_state;
+  if (qs.dynamic_date) {
     var today = new Date();
     var yday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
-    query_state.end = yday;
+    qs.end = yday;
     var aWeekAgo = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 8);
-    query_state.start = aWeekAgo;
+    qs.start = aWeekAgo;
     var date_start = twitgraph.Utils.$('dateStart');
     if (date_start) {
-      date_start.value = twitgraph.Utils.serializeDate(query_state.start);
+      date_start.value = twitgraph.Utils.serializeDate(qs.start);
     }
     var date_end = twitgraph.Utils.$('dateEnd');
     if (date_end) {
-      date_end.value = twitgraph.Utils.serializeDate(query_state.end);
+      date_end.value = twitgraph.Utils.serializeDate(qs.end);
     }
   }
   this.refresh();
@@ -94,8 +103,8 @@ onSubmit: function() {
   }
   var q = twitgraph.Utils.$('q').value;
   var show_text = twitgraph.Utils.$('showText').checked;
-  query_state = new twitgraph.QueryState(q, dynamic_date, start, end, duration, show_text);
-  twitgraph.Utils.log(query_state);
+  twitgraph.Globals.query_state = new twitgraph.QueryState(q, dynamic_date, start, end, duration, show_text);
+  twitgraph.Utils.log(twitgraph.Globals.query_state);
   this.refresh();
 },
 
@@ -105,11 +114,12 @@ onSubmit: function() {
  * This function reads the state from query_state and updates the various page elemetns by it.
  **/
 refresh: function() {
-  twitgraph.Utils.log(query_state);
-  this.query(query_state);
+  var qs = twitgraph.Globals.query_state;
+  twitgraph.Utils.log(qs);
+  this.query(qs);
   var title = twitgraph.Utils.$('twg-title');
   if (title) {
-    title.innerHTML = query_state.q;
+    title.innerHTML = qs.q;
   }
   var embed_code = twitgraph.Utils.$('embed-code');
   if (embed_code) {
@@ -120,14 +130,11 @@ refresh: function() {
 /**
  * Queries the twitter search service.
  *
- * @param q {String} the query string.
- * @param start {Date} start date.
- * @param end {Date} end date.
- * @param showText {bool} Show text results from the query.
+ * @param qs {QueryState} the query state object
  **/
-query: function(query_state) {
+query: function(qs) {
   twitgraph.Utils.time('query');
-  twitgraph.Globals.query_runner = new twitgraph.QueryRunner(query_state);
+  twitgraph.Globals.query_runner = new twitgraph.QueryRunner(qs);
   twitgraph.Globals.query_runner.run();
 },
 
@@ -146,30 +153,31 @@ $: function(el) {
  * @return {String} The embedded code string.
  **/
 getEmbedCode: function() {
+  var qs = twitgraph.Globals.query_state;
   var a = [];
   a.push('<h3>TwitGraph for ');
-  a.push(query_state.q);
+  a.push(qs.q);
   a.push('</h3>\n');
   a.push('<div id="twit-graph"></div>\n');
   a.push('<script type="text/javascript" src="');
   a.push(TWITGRAPH_BASE_URL);
   a.push('/embed?');
   a.push('&q=');
-  a.push(encodeURIComponent(query_state.q));
+  a.push(encodeURIComponent(qs.q));
   a.push('&dynamic_date=');
-  if (query_state.dynamic_date) {
+  if (qs.dynamic_date) {
     a.push('1');
     a.push('&duration=');
-    a.push(encodeURIComponent(query_state.duration));
+    a.push(encodeURIComponent(qs.duration));
   } else {
     a.push('0');
     a.push('&start=');
-    a.push(encodeURIComponent(twitgraph.Utils.serializeDate(query_state.start)));
+    a.push(encodeURIComponent(twitgraph.Utils.serializeDate(qs.start)));
     a.push('&end=');
-    a.push(encodeURIComponent(twitgraph.Utils.serializeDate(query_state.end)));
+    a.push(encodeURIComponent(twitgraph.Utils.serializeDate(qs.end)));
   }
   a.push('&show_text=');
-  a.push(query_state.show_text ? '1' : '0');
+  a.push(qs.show_text ? '1' : '0');
   a.push('"> </sc');
   a.push('ript>');
   return a.join('');
@@ -246,7 +254,7 @@ learn: function(tag, text, a) {
 //  if (a.className == 'twg-emoticon-selected') {
 //    return;
 //  }
-  var query = query_state.q;
+  var query = twitgraph.Globals.query_state.q;
   text = unescape(text);
   this.log('Learning: ' + tag + '   ' + text + '  - Query: ' + query);
   var url = [];
@@ -313,7 +321,7 @@ timeEnd: function(name) {
   if (window.console && window.console.timeEnd) {
     window.console.timeEnd(name);
   }
-},
+}
 
 };
 
@@ -352,7 +360,7 @@ twitgraph.QueryRunner.prototype.onQueryDone = function(result) {
   var grapher = new twitgraph.Grapher(result);
   grapher.drawLineChart();
   grapher.drawPieChart();
-  if (query_state.show_text) {
+  if (twitgraph.Globals.query_state.show_text) {
     var texter = new twitgraph.Texter(result);
     texter.draw();
   }
@@ -442,6 +450,8 @@ twitgraph.Grapher.prototype.drawLineChart = function() {
   var chart = new google.visualization.AreaChart(twitgraph.Utils.$('twg-graph'));
   chart.draw(data, {legend: 'bottom',
                     isStacked: true,
+                    width: 600,
+                    height: 300,
                     colors: ["#FF4848", "#4AE371", "#2F74D0"]});
 }
 
@@ -464,6 +474,8 @@ twitgraph.Grapher.prototype.drawPieChart = function() {
   var chart = new google.visualization.PieChart(twitgraph.Utils.$('twg-graph-pie'));
   chart.draw(data, {legend: 'none',
                     is3D: true,
+                    width: 300,
+                    height: 300,
                     colors: ["#FF4848", "#4AE371", "#2F74D0"]});
 }
 
