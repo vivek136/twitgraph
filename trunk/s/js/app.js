@@ -1,40 +1,10 @@
+// All our JS code will be under twitgraph.*
+window['twitgraph'] = {};
+
 try {
 google.load('visualization', '1', {packages: ['areachart', 'piechart']});
 google.setOnLoadCallback(twitgraph.Utils.createDelegate(twitgraph.Utils, twitgraph.Utils.onGvizLoaded));
 } catch(e){}
-
-// Create a Namespace mechanism to prevent javascript name clashes.
-var Namespace = {
-  Register : function(_Name) {
-    var chk = false;
-    var cob = "";
-    var spc = _Name.split(".");
-    for(var i = 0; i<spc.length; i++) {
-      if(cob!=""){cob+=".";}
-      cob+=spc[i];
-      chk = this.Exists(cob);
-      if(!chk) {
-        this.Create(cob);
-      }
-    }
-    if(chk) {
-      throw "Namespace: " + _Name + " is already defined.";
-    }
-  },
-
-  Create : function(_Src) {
-    eval("window." + _Src + " = new Object();");
-  },
-
-  Exists : function(_Src) {
-    eval("var NE = false; try{if(" + _Src + "){NE = true;}else{NE = false;}}catch(err){NE=false;}");
-    return NE;
-  }
-}
-
-// All our JS code will be under twitgraph.*
-// Javascript namespace mechanism is copied from http://www.codeproject.com/KB/scripting/jsnamespaces.aspx
-Namespace.Register("twitgraph");
 
 // Global package holds some (very few) global javascript variables.
 twitgraph.Globals = {
@@ -272,9 +242,11 @@ parseDate: function(s) {
 /**
  * Sends the server a tagged text for it to learn
  **/
-learn: function(elm, text) {
+learn: function(tag, text, a) {
+  if (a.className == 'twg-emoticon-selected') {
+    return;
+  }
   text = unescape(text);
-  tag = elm.value;
   this.log('Learning: ' + tag + '   ' + text);
   var url = [];
   url.push(TWITGRAPH_BASE_URL);
@@ -285,10 +257,29 @@ learn: function(elm, text) {
   url.push(tag);
   url = url.join('');
   this.jsonp(url, 'twitgraph.Utils.onLearnDone');
+  var allEmoticons = a.parentNode.childNodes;
+  for (var i = 0; i < allEmoticons.length; ++i) {
+    allEmoticons[i].className = '';
+  }
+  a.className = 'twg-emoticon-selected';
 },
 
 onLearnDone: function(result) {
   this.log(result);
+},
+
+onLearnMouseOut: function(a) {
+  if (a.className == 'twg-emoticon-selected') {
+    return;
+  }
+  a.className = '';
+},
+
+onLearnMouseOver: function(a) {
+  if (a.className == 'twg-emoticon-selected') {
+    return;
+  }
+  a.className = 'twg-emoticon-over';
 },
 
 /**
@@ -383,38 +374,43 @@ twitgraph.Texter.prototype.formatTexts = function(results) {
     tag = results[i].tag;
     text = results[i].text;
     html.push('<div class="twg-tableRow">');
-    html.push('<span class="twg-learn">');
-    html.push('<select title="O-mighty human, teach me right from wrong!"');
-    html.push(' onchange="twitgraph.Utils.learn(this, \'' + escape(text) + '\')"');
-    html.push('">');
-    html.push(this.createDropDownOption('pos', ':-)', tag, text));
-    html.push(this.createDropDownOption('neg', ':-(', tag, text));
-    html.push(this.createDropDownOption('neu', ':-|', tag, text));
-    html.push('</select>');
-    html.push('</span>');
     html.push('<span class="twg-user">');
     html.push(results[i].from_user);
-    html.push(": ");
     html.push("</span>");
     html.push('<span class="twg-text">');
     html.push(text);
+    html.push('</span>');
+    html.push('<span class="twg-learn">');
+    html.push(this.createEmoticon('pos', tag, text));
+    html.push(this.createEmoticon('neg', tag, text));
+    html.push(this.createEmoticon('neu', tag, text));
     html.push('</span>');
     html.push('</div>');
   }
   return html.join("");
 }
 
-twitgraph.Texter.prototype.createDropDownOption = function(tag, visual, selectedTag) {
+twitgraph.Texter.prototype.createEmoticon = function(tag, selectedTag, text) {
   var s = []
-  s.push('<option value="');
+  s.push('<a href="javascript:void(0)" onclick="twitgraph.Utils.learn(\'');
   s.push(tag);
-  s.push('"');
+  s.push('\', \'');
+  s.push(escape(text));
+  s.push('\', this)"');
   if (tag == selectedTag) {
-    s.push(' selected="selected"');
+    s.push(' class="twg-emoticon-selected"');
   }
+  s.push(' title="O-mighty human, teach me right from wrong!"');
+  s.push(' onmouseover="twitgraph.Utils.onLearnMouseOver(this)"');
+  s.push(' onmouseout="twitgraph.Utils.onLearnMouseOut(this)"');
   s.push('>');
-  s.push(visual);
-  s.push('</option>');
+  s.push('<img src="');
+  s.push(TWITGRAPH_BASE_URL);
+  s.push('/s/img/');
+  s.push(tag);
+  s.push('.jpg"');
+  s.push('/>');
+  s.push('</a>');
   return s.join('');
 }
 
