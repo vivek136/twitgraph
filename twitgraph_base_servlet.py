@@ -20,8 +20,63 @@ class BaseHandler(webapp.RequestHandler):
       'end': self.get_end(),
       'version': os.environ['CURRENT_VERSION_ID'],
       'base_url': 'http://%s' % self.get_host_name(),
+      'css': self.get_content_css(),
     }
     return template_values
+
+  def get_content_css(self):
+    return '<style>' \
+           '#twg-graph {' \
+            'width: 600px;' \
+            'height: 300px;' \
+            'vertical-align: middle;' \
+            'display:table-cell;' \
+            '}' \
+            '#twg-graph-pie {' \
+            'width: 300px;' \
+            'height: 300px;' \
+            'vertical-align: middle;' \
+            'display:table-cell;' \
+            '}' \
+            '#twg-resultsText {' \
+            'font-size: 10pt;' \
+            'padding: 20px;' \
+            'font-family: Arial;' \
+            '}' \
+            '.twg-user {' \
+            'color: green;' \
+            'width: 150px;' \
+            'display: block;' \
+            'float: left;' \
+            '}' \
+            '.twg-learn {' \
+            'width: 75px;' \
+            'display: block;' \
+            'float: left;' \
+            '}' \
+            '.twg-text {' \
+            'display: block;' \
+            'float: left;' \
+            '}' \
+            '.twg-tableRow {' \
+            'clear: both;' \
+            'padding: 4px;' \
+            '}' \
+            '.twg-learn a {' \
+            'filter:alpha(opacity=40); -moz-opacity:.4; opacity:.4;'\
+            '}' \
+            '.twg-learn img {' \
+            'border: none;' \
+            'padding: 1px;' \
+            'margin-left: 2px;' \
+            '}' \
+            'a.twg-emoticon-selected {' \
+            'filter:alpha(opacity=100); -moz-opacity:1; opacity:1;'\
+            '}' \
+            'a.twg-emoticon-over {' \
+            'filter:alpha(opacity=70); -moz-opacity:.7; opacity:.7;'\
+            '}' \
+            '</style>'
 
   def get_start(self):
     return self.get_start_as_date().strftime(DATE_FORMAT)

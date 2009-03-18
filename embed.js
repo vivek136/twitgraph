@@ -16,13 +16,4 @@ function twitgraph_onAppJsLoad() {
   google.setOnLoadCallback(twitgraph.Utils.createDelegate(twitgraph.Utils, twitgraph.Utils.onGvizLoaded));
   } catch(e){}
 }
-
-document.write('<style>' +
-    '#twg-graph{width:600px;height:300px;vertical-align:middle;display:table-cell;}' +
-    '#twg-graph-pie{width:300px;height:300px;vertical-align:middle;display:table-cell;}' +
-    '#twg-resultsText{font-size:10pt;padding:20px;font-family:Arial;}' +
-    '.twg-user{color:green;width:150px;display:block;float:left;}' +
-    '.twg-text{display:block;float:left;}' +
-    '.twg-tableRow{clear:both;padding:4px;}' +
-    '</style>');
-
+document.write('{{css}}');
