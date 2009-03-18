@@ -4,9 +4,18 @@ from data.model import Tweet
 
 def fetch_all_tweets():
   tweets = Tweet.all()
-  log.info('All tweets: %s' % tweets)
   return tweets
 
 def add_tweet(tweet):
-  log.info('Adding tweet: %s' % tweet)
+  tweets = fetch_all_tweets()
+  tweets.filter('text =', tweet.text)
+  tweets.filter('query =', tweet.query)
+  for t in tweets:
+    # There's already a tweet with the same text. just replace it's sentiment
+    log.info('Changing existing tweet: %s', tweet.text)
+    t.sentiment = tweet.sentiment;
+    t.put()
+    return
+
+  log.info('Adding tweet: %s' % tweet.text)
   tweet.put()
