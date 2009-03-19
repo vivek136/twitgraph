@@ -488,7 +488,7 @@ twitgraph.Grapher.prototype.drawGauge = function() {
   data.addColumn('string', 'Sentiment');
   data.addColumn('number', 'Tweet count');
   data.addRows(1);
-  var normalizedValue = ((stats.pos - stats.neg) / (stats.pos + stats.neg)) * 100;
+  var normalizedValue = ((stats.pos) / (stats.pos + stats.neg)) * 100;
   normalizedValue = Math.round(normalizedValue);
   twitgraph.Utils.log("Gauge: " + normalizedValue);
   data.setValue(0, 0, ':-)');
