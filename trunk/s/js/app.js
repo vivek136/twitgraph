@@ -2,7 +2,7 @@
 window['twitgraph'] = {};
 
 try {
-google.load('visualization', '1', {packages: ['areachart', 'piechart']});
+google.load('visualization', '1', {packages: ['areachart', 'piechart', "gauge"]});
 google.setOnLoadCallback(twitgraph.Utils.createDelegate(twitgraph.Utils, twitgraph.Utils.onGvizLoaded));
 } catch(e){}
 
@@ -346,6 +346,7 @@ twitgraph.QueryRunner.prototype.run = function() {
   twitgraph.Utils.$('twg-resultsText').innerHTML = '';
   twitgraph.Utils.$('twg-graph').innerHTML = '<img src="' + TWITGRAPH_BASE_URL + '/s/img/loading.gif" alt="Loading..." title="Loading..." style="display:block;margin:auto;"/>';
   twitgraph.Utils.$('twg-graph-pie').innerHTML = '';
+  twitgraph.Utils.$('twg-graph-gauge').innerHTML = '';
   var url = TWITGRAPH_BASE_URL + '/results.json' + '?' + this.q.toUrlParams();
   twitgraph.Utils.jsonp(url, 'twitgraph.Globals.query_runner.onQueryDone');
 }
@@ -360,6 +361,7 @@ twitgraph.QueryRunner.prototype.onQueryDone = function(result) {
   var grapher = new twitgraph.Grapher(result);
   grapher.drawLineChart();
   grapher.drawPieChart();
+  grapher.drawGauge();
   if (twitgraph.Globals.query_state.show_text) {
     var texter = new twitgraph.Texter(result);
     texter.draw();
@@ -477,6 +479,32 @@ twitgraph.Grapher.prototype.drawPieChart = function() {
                     width: 300,
                     height: 300,
                     colors: ["#FF4848", "#4AE371", "#2F74D0"]});
+}
+
+twitgraph.Grapher.prototype.drawGauge = function() {
+  var stats = this.result.stats;
+  // Create and populate the data table.
+  var data = new google.visualization.DataTable();
+  data.addColumn('string', 'Sentiment');
+  data.addColumn('number', 'Tweet count');
+  data.addRows(1);
+  var normalizedValue = ((stats.pos - stats.neg) / (stats.pos + stats.neg)) * 100;
+  normalizedValue = Math.round(normalizedValue);
+  twitgraph.Utils.log("Gauge: " + normalizedValue);
+  data.setValue(0, 0, ':-)');
+  data.setValue(0, 1, normalizedValue);
+
+  // Create and draw the visualization.
+  twitgraph.Utils.$('twg-graph-gauge').innerHTML = '';
+  var chart = new google.visualization.Gauge(document.getElementById('twg-graph-gauge'));
+  chart.draw(data, {width: 120,
+                    height: 120,
+                    redFrom: 0,
+                    redTo: 30,
+                    greenFrom:70,
+                    greenTo: 100,
+                    minorTicks: 5,
+                    legent: 'none'});
 }
 
 // A data structure defining the state of the current query.
