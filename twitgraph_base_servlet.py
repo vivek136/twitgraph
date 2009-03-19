@@ -114,7 +114,7 @@ class BaseHandler(webapp.RequestHandler):
     return 7
 
   def get_show_text(self):
-    return self.request.get('show_text') == "1"
+    return self.request.get('show_text') != "0"
 
   def get_host_name(self):
     if os.environ.get('HTTP_HOST'):
