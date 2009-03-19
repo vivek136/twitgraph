@@ -105,7 +105,7 @@ class BaseHandler(webapp.RequestHandler):
     return q or "youtube annotations"
 
   def is_dynamic_date(self):
-    return (self.request.get('dynamic_date') == 0) or True
+    return self.request.get('dynamic_date') != "0"
 
   def get_duration(self):
     duration = self.request.get('duration')

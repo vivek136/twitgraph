@@ -10,8 +10,8 @@
 {% block js_state_variables %}
 var __twg_init_q = '{{q|escape}}';
 var __twg_init_dynamic_date = {% if dynamic_date %}true{% else %}false{% endif%};
-var __twg_init_start = Date.parse('{{start|escape}}');
-var __twg_init_end = Date.parse('{{end|escape}}');
+var __twg_init_start = '{{start|escape}}';
+var __twg_init_end = '{{end|escape}}';
 var __twg_init_duration = {{duration|escape}};
 var __twg_init_show_text = {% if show_text %}true{% else %}false{% endif%};
 

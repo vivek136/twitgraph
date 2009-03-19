@@ -52,8 +52,8 @@ init: function() {
   twitgraph.Globals.query_state =
       new twitgraph.QueryState(__twg_init_q,
                                __twg_init_dynamic_date,
-                               __twg_init_start,
-                               __twg_init_end,
+                               this.parseDate(__twg_init_start),
+                               this.parseDate(__twg_init_end),
                                __twg_init_duration,
                                __twg_init_show_text);
   var qs = twitgraph.Globals.query_state;
