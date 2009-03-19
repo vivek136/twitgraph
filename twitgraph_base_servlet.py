@@ -35,8 +35,6 @@ class BaseHandler(webapp.RequestHandler):
             '#twg-graph-pie {' \
             'width: 300px;' \
             'height: 300px;' \
-            'vertical-align: middle;' \
-            'display:table-cell;' \
             '}' \
             '#twg-resultsText {' \
             'font-size: 10pt;' \

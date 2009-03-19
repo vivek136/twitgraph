@@ -11,6 +11,7 @@ function twitgraph_onAppJsLoad() {
   var __twg_init_show_text = {% if show_text %}true{% else %}false{% endif%};
   twitgraph.Utils.$('twit-graph').innerHTML = '<div id="twg-graph"></div>' +
       '<div id="twg-graph-pie"></div>' +
+      '<div id="twg-graph-gauge"></div>' +
       '<div id="twg-resultsText"></div>';
   try{
   google.setOnLoadCallback(twitgraph.Utils.createDelegate(twitgraph.Utils, twitgraph.Utils.onGvizLoaded));
