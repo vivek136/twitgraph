@@ -117,10 +117,6 @@ refresh: function() {
   var qs = twitgraph.Globals.query_state;
   twitgraph.Utils.log(qs);
   this.query(qs);
-  var title = twitgraph.Utils.$('twg-title');
-  if (title) {
-    title.innerHTML = qs.q;
-  }
   var embed_code = twitgraph.Utils.$('embed-code');
   if (embed_code) {
     embed_code.value = this.getEmbedCode();
@@ -293,6 +289,17 @@ onLearnMouseOver: function(a) {
   a.className = 'twg-emoticon-over';
 },
 
+highlightDateDynamic: function(isDynamic) {
+  var dynamic = this.$('divDateDynamic');
+  var static = this.$('divDateStatic');
+  if (isDynamic) {
+    dynamic.className = 'date-type-highlight';
+    static.className = 'date-type-lowlight';
+  } else {
+    dynamic.className = 'date-type-lowlight';
+    static.className = 'date-type-highlight';
+  }
+},
 /**
  * Logs the message to firebug
  **/
@@ -369,7 +376,7 @@ twitgraph.QueryRunner.prototype.onQueryDone = function(result) {
 }
 
 twitgraph.QueryRunner.prototype.showSorry = function() {
-  twitgraph.Utils.$('twg-graph').innerHTML = '<img src="' + TWITGRAPH_BASE_URL + '/s/img/ouch.jpg" title="ouch" alt="ouch" /><br/>Ouch, there was an error. Care to try again later?<br/>';
+  twitgraph.Utils.$('twg-graph').innerHTML = '<img src="' + TWITGRAPH_BASE_URL + '/s/img/ouch.png" title="ouch" alt="ouch" />';
 }
 
 twitgraph.Texter = function(result) {
@@ -387,12 +394,14 @@ twitgraph.Texter.prototype.formatTexts = function(results) {
     tag = results[i].tag;
     text = results[i].text;
     html.push('<div class="twg-tableRow">');
-    html.push('<span class="twg-user">');
-    html.push(results[i].from_user);
-    html.push("</span>");
     html.push('<span class="twg-text">');
     html.push(text);
     html.push('</span>');
+    html.push('<span class="twg-user">');
+    html.push('(');
+    html.push(results[i].from_user);
+    html.push(')');
+    html.push("</span>");
     html.push('<span class="twg-learn">');
     html.push(this.createEmoticon('pos', tag, text));
     html.push(this.createEmoticon('neg', tag, text));

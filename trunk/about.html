@@ -1,18 +1,6 @@
 {% extends "base.html" %}
-
-{% block page_css %}
-<style>
-#disclaimer {
-  font-size: 10pt;
-}
-.done {
-  text-decoration: line-through;
-}
-</style>
-{% endblock page_css %}
+{% block content_heading %}About TwitGraph{% endblock %}
 {% block content %}
-<body>
-<h2>About TwitGraph</h2>
 <p><strong>TwitGraph</strong> is an experimental ("early beta") application I wrote over two sleepless nights to follow trends of the product I work on in my day job.</p>
 <p><strong>The idea is simple</strong>: enter a search term/query for twitter and get back a graph of how many times it's been used every day. You may look at, say the past 7 days or look over last June. A search term may simply be "<a href="http://twitgraph.appspot.com/?show_inputs=1&duration=7&q=youtube+annotations">youtube annotations</a>" or it may use #hashtags such as "<a href="http://twitgraph.appspot.com/?show_inputs=1&duration=7&q=%23youtube+annotations">#youtube annotations</a>", may have references to users, for example "<a href="http://twitgraph.appspot.com/?show_inputs=1&duration=7&q=from%3Arantav">from:rantav</a>" or "<a href="http://twitgraph.appspot.com/?show_inputs=1&duration=7&q=to%3Arantav">to:rantav</a>"</p>
 <p><strong>Development is (slowly) in progress</strong> and there are lots of improvements I plan to add (see my <a href="#todo">TODO</a> down there) but the basic functionality is already here and is quite impressive for the minial work put into it, so that's a very high thumbs up for Twitter for a very nice and easy to use API</p>
@@ -21,7 +9,7 @@
 
 
 <div id="todo">
-<h3>TODO</div>
+<h3>TODO</h3>
 <ol>
   <li>Done - <span class="done">Better classification for Happy/Sad tweets. I currently use the twitter search operators :) and :( but I'm not happy with their results and I'd like to improve that. I've started a little research (see question on stackoverflow <a href="http://stackoverflow.com/questions/573768/sentiment-analysis-for-twitter-in-python">here</a>) but have not had the sleepless night to implement a classifier yet.</span></li>
   <li>Improve performance for high frequency terms. When using twitgraph with a search term that's not so common, say "youtube annotations" you get results in after a few seconds. But when using a term more frequently used, say "youtube", the search results take loooooooong time to get back. The reason for that is a limitation in the twitter search API which caps the number of results per query at 100. So what I do it iterate over the first 100, then the next 100 to 200, then 200 to 300 etc until I get all results and then I graph them. The trouble is that when there are thousands of results, that may take many roundtrips and the application looks stuck. I've sent a <a href="http://help.twitter.com/requests/38462">query</a> over at twitter and I'm still waiting for suggestions how to improve that...</li>
@@ -34,6 +22,7 @@
   <li>how about a filter to show only good, bad, or neutral tweets? also a slider ui for the time window might be cool</li>
 </ol>
 </div>
-
-<p id="disclaimer"><strong>Disclaimer:</strong> TwitGraph is my own personal project and I work on it on my free time. It is neither encouraged nor discouraged by my <a href="http://www.google.com/">employee</a>. (actually, they don't know about it). No level of support is granted whatsoever, but a big smile is!</p>
 {% endblock content %}
+{%block content_bottom %}
+<p id="disclaimer"><strong>Disclaimer:</strong> TwitGraph is my own personal project and I work on it on my free time. It is neither encouraged nor discouraged by my <a href="http://www.google.com/">employee</a>. (actually, they don't know about it). No level of support is granted whatsoever, but a big smile is!</p>
+{% endblock %}

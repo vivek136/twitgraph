@@ -23,54 +23,46 @@ var TWITGRAPH_BASE_URL = '{{base_url}}';
 {% block js_init_function %}twitgraph.Utils.init(){% endblock %}
 
 {% block content %}
-<h3>Twitter Graph For: <span id="twg-title">&nbsp;</span></h3>
+{% block content_heading %}{% endblock %}
 {% block inputs %}
-<div id="main">
-        <strong>Track how often twitter users are talking about you</strong>
-        <form onSubmit="{% block on_submit %}twitgraph.Utils.onSubmit();{% endblock %}return false" id="form">
-                <div class="input-div">
-                        Search: <input id="q" value="{{q}}"/>
-                </div>
-                <div class="input-div">
-                        <input type="radio" name="dateDynamic" value="0" id="dateDynamic0" {% if not dynamic_date %} checked="checked" {% endif %}/>
-                        <label for="dateDynamic0">From:</label>
-                        <input id="dateStart" value="{{start}}"/>  Until: <input id="dateEnd" value="{{end}}"/>
-                </div>
-                <div class="input-div">
-                        Or
-                </div>
-                <div class="input-div">
-                        <input type="radio" name="dateDynamic" value="1" id="dateDynamic1"  {% if dynamic_date %} checked="checked" {% endif %}/>
-                        <label for="dateDynamic1">During the past</label>
-                        <input id="duration" value="{{duration}}" size="3"/> days.
-                </div>
-                <div class="input-div">
-                        <input id="showText"  type="checkbox" {% if show_text %} checked="checked" {%endif%}/><label for="showText">Show Texts</label/>
-                </div>
-                <div class="input-div">
-                        <input type="submit" class="btn" value="Show it!"/>
-                </div>
-        </form>
-</div>
+<form onSubmit="{% block on_submit %}twitgraph.Utils.onSubmit();{% endblock %}return false" id="form">
+  <div id="search-input">
+    <input id="q" value="{{q}}" class="text"/>
+    <input type="submit" id="submit" value="Graph it"/>
+  </div>
+  <br class="clear"/>
+  <div id="search-input-more">
+    <div id="divDateStatic" class="{% if dynamic_date %}date-type-lowlight{% else %}date-type-highlight{% endif %}">
+      <input type="radio" name="dateDynamic" value="0" id="dateDynamic0" {% if not dynamic_date %} checked="checked" {% endif %} onchange="twitgraph.Utils.highlightDateDynamic(false)"/>
+      <label for="dateDynamic0">From </label>
+      <input id="dateStart" class="text" value="{{start}}" size="10"/>
+      <label for="dateDynamic0">Until </label>
+      <input id="dateEnd" class="text" value="{{end}}" size="10"/>
+    </div>
+    <div id="divDateDynamic" class="{% if dynamic_date %}date-type-highlight{% else %}date-type-lowlight{% endif %}">
+      <input type="radio" name="dateDynamic" value="1" id="dateDynamic1"  {% if dynamic_date %} checked="checked" {% endif %} onchange="twitgraph.Utils.highlightDateDynamic(true)"/>
+      <label for="dateDynamic1">During the past</label>
+      <input id="duration" class="text" value="{{duration}}" size="3"/>
+      <label for="dateDynamic1"> days.</label>
+    </div>
+    <div id="show-text-div">
+      <input id="showText"  type="checkbox" {% if show_text %} checked="checked" {%endif%}/><label for="showText">Show Texts</label/>
+    </div>
+  </div>
+  {% block embed_code %}
+  <div id="embed">
+    Embed: <br/>
+    <textarea id="embed-code" readonly="readonly" onclick="focus();select()"> </textarea>
+  </div>
+  {% endblock %}
+</form>
 {% endblock inputs %}
-{% block embed_code %}{% endblock %}
 <div style="clear:both">&nbsp;</div>
 {% block graph %}
         <div id="twg-graph"></div>
         <div id="twg-graph-pie"></div>
         <div id="twg-graph-gauge"></div>
 {% endblock %}
-{% block attribution %}
-        <div>
-                <img style="border-width: 0px; vertical-align: middle; margin-right: 50px;"
-                         src="http://search.twitter.com/images/powered-by-twitter-badge.gif"
-                        alt="Powered-by-twitter-badge"/>
-                <a href="http://twitter.com/home?status=@rantav">Tweet me @rantav</a> or <a href="http://twitter.com/rantav">follow me</a>
-        </div>
-        <div style="margin-top:10pt">
-                <a href="/about">About TwitGraph</a>
-        </div>
-{% endblock attribution %}
 {% block text_output %}
         <div id="twg-resultsText"></div>
 {% endblock %}

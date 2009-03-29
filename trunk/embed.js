@@ -3,12 +3,12 @@ document.write('<script type="text/javascript" src="{{base_url}}/s/js/app.js?v={
 
 var TWITGRAPH_BASE_URL = '{{base_url}}';
 function twitgraph_onAppJsLoad() {
-  var __twg_init_q = '{{q|escape}}';
-  var __twg_init_dynamic_date = {% if dynamic_date %}true{% else %}false{% endif%};
-  var __twg_init_start = Date.parse('{{start|escape}}');
-  var __twg_init_end = Date.parse('{{end|escape}}');
-  var __twg_init_duration = {{duration|escape}};
-  var __twg_init_show_text = {% if show_text %}true{% else %}false{% endif%};
+  window.__twg_init_q = '{{q|escape}}';
+  window.__twg_init_dynamic_date = {% if dynamic_date %}true{% else %}false{% endif%};
+  window.__twg_init_start = '{{start|escape}}';
+  window.__twg_init_end = '{{end|escape}}';
+  window.__twg_init_duration = {{duration|escape}};
+  window.__twg_init_show_text = {% if show_text %}true{% else %}false{% endif%};
   twitgraph.Utils.$('twit-graph').innerHTML = '<div id="twg-graph"></div>' +
       '<div id="twg-graph-pie"></div>' +
       '<div id="twg-graph-gauge"></div>' +

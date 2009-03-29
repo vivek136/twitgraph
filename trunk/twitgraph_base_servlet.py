@@ -30,43 +30,42 @@ class BaseHandler(webapp.RequestHandler):
             'width: 600px;' \
             'height: 300px;' \
             'vertical-align: middle;' \
-            'display:table-cell;' \
+            'margin-left:auto;' \
+            'margin-right:auto;' \
             '}' \
             '#twg-graph-pie {' \
             'width: 300px;' \
-            'height: 300px;' \
+            'margin-left:auto;' \
+            'margin-right:auto;' \
+            '}' \
+            '#twg-graph-gauge {' \
+            'width: 115px;' \
+            'margin-left:auto;' \
+            'margin-right:auto;' \
             '}' \
             '#twg-resultsText {' \
             'font-size: 10pt;' \
-            'padding: 20px;' \
-            'font-family: Arial;' \
+            'margin-top: 20px;' \
             '}' \
             '.twg-user {' \
             'color: green;' \
-            'width: 150px;' \
-            'display: block;' \
-            'float: left;' \
+            'padding-left: 0.3em;' \
             '}' \
             '.twg-learn {' \
-            'width: 75px;' \
-            'display: block;' \
-            'float: left;' \
             '}' \
             '.twg-text {' \
-            'display: block;' \
-            'float: left;' \
             '}' \
             '.twg-tableRow {' \
             'clear: both;' \
-            'padding: 4px;' \
+            'margin-bottom: 1em;' \
             '}' \
             '.twg-learn a img {' \
             'filter:alpha(opacity=40); -moz-opacity:.4; opacity:.4;'\
             '}' \
             '.twg-learn img {' \
             'border: none;' \
-            'padding: 1px;' \
             'margin-left: 2px;' \
+            'vertical-align: middle;' \
             '}' \
             'a.twg-emoticon-selected img {' \
             'filter:alpha(opacity=100); -moz-opacity:1; opacity:1;'\
