@@ -395,11 +395,15 @@ twitgraph.Texter.prototype.formatTexts = function(results) {
     text = results[i].text;
     html.push('<div class="twg-tableRow">');
     html.push('<span class="twg-text">');
-    html.push(text);
+    html.push(this.createLinkableText(results[i]));
     html.push('</span>');
     html.push('<span class="twg-user">');
     html.push('(');
+    html.push('<a href="http://twitter.com/');
     html.push(results[i].from_user);
+    html.push('">');
+    html.push(results[i].from_user);
+    html.push('</a>');
     html.push(')');
     html.push("</span>");
     html.push('<span class="twg-learn">');
@@ -410,6 +414,59 @@ twitgraph.Texter.prototype.formatTexts = function(results) {
     html.push('</div>');
   }
   return html.join("");
+}
+
+twitgraph.Texter.prototype.createLinkableText = function(result) {
+  // Split the text into links such as http:// and @username
+  var split = result.text.split(/(http:\/\/[^\s]*|@[^\s]*|#[^\s]*)/);
+  var tweetLink = this.getTweetLink(result);
+  var a = [];
+  for (var i = 0; i < split.length; ++i) {
+    if (split[i].length == 0) {
+      continue;
+    }
+    if (split[i].indexOf('@') == 0) {
+      // This is a user ref
+      var refUser = split[i].substr(1);
+      a.push('<a href="http://twitter.com/');
+      a.push(refUser);
+      a.push('">');
+      a.push(split[i]);
+      a.push('</a>');
+    } else if (split[i].indexOf('#') == 0) {
+      // This is a hashtag search term
+      var hashtag = split[i].substr(1);
+      a.push('<a href="http://search.twitter.com/search?q=');
+      a.push(hashtag);
+      a.push('">');
+      a.push(split[i]);
+      a.push('</a>');
+    } else if (split[i].indexOf('http://') == 0) {
+      // This is a web link
+      a.push('<a href="');
+      a.push(split[i]);
+      a.push('">');
+      a.push(split[i]);
+      a.push('</a>');
+    } else {
+      // This is the tweet text, just link it to the tweet permalink
+      a.push('<a href="');
+      a.push(tweetLink);
+      a.push('">');
+      a.push(split[i]);
+      a.push('</a>');
+    }
+  }
+  return a.join('');
+}
+
+twitgraph.Texter.prototype.getTweetLink = function(result) {
+  var a = [];
+  a.push('http://twitter.com/');
+  a.push(result.from_user);
+  a.push('/statuses/');
+  a.push(result.id);
+  return a.join('');
 }
 
 twitgraph.Texter.prototype.createEmoticon = function(tag, selectedTag, text) {
