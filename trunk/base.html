@@ -8,8 +8,6 @@
 {% block page_js %}{% endblock %}
 </head>
 <body onload="{% block js_init_function %}{% endblock%}">
-
-
 <div id="Wrapper">
   <div id="Container">
     <div id="Header">
@@ -20,7 +18,7 @@
     </div>
     <div id="Content">
       <div id="inside-content">
-        <h1>{% block content_heading %}Content Heading{%endblock%}</h1>
+        <h1>{% block content_heading %}{%endblock%}</h1>
         {% block content %}
         {% endblock %}
       </div>
